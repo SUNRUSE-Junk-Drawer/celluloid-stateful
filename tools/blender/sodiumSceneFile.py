@@ -19,26 +19,23 @@ class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
         json_object = json.loads(json_string)
         bpy.context.scene.render.fps = json_object["framesPerSecond"]["numerator"]
         bpy.context.scene.render.fps_base = json_object["framesPerSecond"]["denominator"]
-        if not bpy.data.materials.get("none"):
-            material = bpy.data.materials.new(name="none")
-            material.alpha = 0.25
-            material.diffuse_color[0] = 0
-            material.diffuse_color[1] = 0
-            material.diffuse_color[2] = 1
-            material.use_transparency = True
-            material.emit = True
-        if not bpy.data.materials.get("walk"):
-            material = bpy.data.materials.new(name="walk")
-            material.alpha = 0.25
-            material.diffuse_color[0] = 0
-            material.diffuse_color[1] = 1
-            material.diffuse_color[2] = 0
-            material.use_transparency = True
-            material.emit = True
-        if not bpy.data.materials.get("occluder"):
-            material = bpy.data.materials.new(name="occluder")
-            material.diffuse_intensity = 1
-            material.specular_intensity = 0
+        material = bpy.data.materials.get("none") or bpy.data.materials.new(name="none")
+        material.alpha = 0.25
+        material.diffuse_color[0] = 0
+        material.diffuse_color[1] = 0
+        material.diffuse_color[2] = 1
+        material.use_transparency = True
+        material.emit = True
+        material = bpy.data.materials.get("walk") or bpy.data.materials.new(name="walk")
+        material.alpha = 0.25
+        material.diffuse_color[0] = 0
+        material.diffuse_color[1] = 1
+        material.diffuse_color[2] = 0
+        material.use_transparency = True
+        material.emit = True
+        material = bpy.data.materials.get("occluder") or bpy.data.materials.new(name="occluder")
+        material.diffuse_intensity = 1
+        material.specular_intensity = 0
         return {"FINISHED"}
 
 class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
