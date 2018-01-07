@@ -3,7 +3,7 @@ bl_info = {
     "category": "Import-Export"
 }
 
-import bpy, bpy_extras
+import bpy, bpy_extras, json
 
 class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import Sodium Scene File"""
@@ -13,6 +13,12 @@ class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
     filename_ext = ".json"
 
     def execute(self, context):
+        file = open(self.properties.filepath, "r")
+        json_string = file.read()
+        file.close()
+        json_object = json.loads(json_string)
+        bpy.context.scene.render.fps = json_object["framesPerSecond"]["numerator"]
+        bpy.context.scene.render.fps_base = json_object["framesPerSecond"]["denominator"]
         return {"FINISHED"}
 
 class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
@@ -23,6 +29,15 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
     filename_ext = ".json"
 
     def execute(self, context):
+        json_string = json.dumps({
+            "framesPerSecond": {
+                "numerator": bpy.context.scene.render.fps,
+                "denominator": bpy.context.scene.render.fps_base
+            }
+        })
+        file = open(self.properties.filepath, "w")
+        file.write(json_string)
+        file.close()
         return {"FINISHED"}
 
 def import_menu_func(self, context):
