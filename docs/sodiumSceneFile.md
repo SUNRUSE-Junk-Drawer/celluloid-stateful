@@ -178,6 +178,7 @@ Does nothing itself, but can be used to organize other scene nodes.
 ```json
 {
 	"type": "light",
+	"transform": "any transform",
 	"color": [
 		"any red number animation",
 		"any green number animation",
@@ -193,6 +194,7 @@ Does nothing itself, but can be used to organize other scene nodes.
 ```json
 {
 	"type": "mesh",
+	"transform": "any transform",
 	"mesh": "any mesh name",
 	"children": "any named collection of scene nodes"
 }
