@@ -77,6 +77,19 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         for root_object in bpy.context.scene.objects:
             if root_object.parent: continue
             def recurse(object, collection):
+                is_identity = True
+                for row_index, row in enumerate(object.matrix_parent_inverse):
+                    for column_index, column in enumerate(row):
+                        expected = 0
+                        if row_index == column_index:
+                            expected = 1
+                        if (abs(column - expected) > 0.001): is_identity = False
+
+                if not is_identity:
+                    original_matrix = object.matrix_world.copy()
+                    object.matrix_parent_inverse.identity()
+                    object.matrix_basis = object.parent.matrix_world.inverted() * original_matrix
+
                 exported = {
                     "transform": {
                         "scale": write_animation(object, object, "scale", 3),
