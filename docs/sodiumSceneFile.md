@@ -35,6 +35,9 @@ All animations in a scene follow the same frame counter, but can loop at
 different times.  For instance, given two objects with durations of 2 and 4 
 frames, these would loop 6 and 3 times respectively in a 12 frame period.
 
+If an animation's first frame is after frame 0, it will wait that many frames
+before starting its first loop.
+
 #### Keyframes
 
 ##### Constant
