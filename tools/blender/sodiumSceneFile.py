@@ -30,18 +30,112 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
     def execute(self, context):
         scene_nodes = {}
+
+        def write_animation(object, data_object, property_name, axes):
+            fallback = getattr(data_object, property_name)
+            if axes == 1: fallback = [fallback]
+
+            output = []
+            for axis in range(0, axes):
+                found = False
+
+                if data_object.animation_data and data_object.animation_data.action and data_object.animation_data.action.fcurves:
+                    for curve in data_object.animation_data.action.fcurves:
+                        if curve.data_path != property_name: continue
+                        if curve.array_index != axis: continue
+                        curve.update()
+                        if (curve.extrapolation != "CONSTANT"): 
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" contains unexpected extrapolation type \"" + curve.extrapolation + "\".")
+                            return False
+
+                        keyframes = []
+                        for keyframe in curve.keyframe_points:
+                            exported = {
+                                "startsOnFrame": keyframe.co[0],
+                                "withValue": keyframe.co[1]
+                            }
+                            if keyframe.interpolation == "CONSTANT": exported["type"] = "constant"
+                            elif keyframe.interpolation == "LINEAR": exported["type"] = "linear"
+                            else: 
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" contains unexpected interpolation type \"" + keyframe.interpolation + "\".")
+                                return False
+                            keyframes.append(exported)
+
+                        output.append(keyframes)
+
+                        found = True
+                        break
+
+                if not found: output.append([{
+                    "type": "constant",
+                    "startsOnFrame": 0,
+                    "withValue": fallback[axis]
+                }])
+
+            return output
+
         for root_object in bpy.context.scene.objects:
             if root_object.parent: continue
             def recurse(object, collection):
                 exported = {
+                    "transform": {
+                        "scale": write_animation(object, object, "scale", 3),
+                        "rotation": write_animation(object, object, "rotation_euler", 3),
+                        "translation": write_animation(object, object, "location", 3)
+                    },
                     "children": {}
                 }
+
+                if not exported["transform"]["scale"]: return False
+                if not exported["transform"]["rotation"]: return False
+                if not exported["transform"]["translation"]: return False
+
                 collection[object.name] = exported
 
                 if object.type == "EMPTY":
                     exported["type"] = "empty"
                 elif object.type == "LAMP":
                     exported["type"] = "light"
+                    exported["color"] = write_animation(object, object.data, "color", 3)
+                    if object.data.type == "POINT":
+                        if not object.data.use_sphere:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
+                            return False
+                        if object.data.shadow_method != "NOSHADOW":
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
+                            return False
+                        if object.data.falloff_type != "INVERSE_LINEAR":
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
+                            return False
+                        exported["falloff"] = {
+                            "type": "sphere",
+                            "radius": write_animation(object, object.data, "distance", 1)
+                        }
+                    elif object.data.type == "SPOT":
+                        if not object.data.use_sphere:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
+                            return False
+                        if object.data.use_square:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" is a square, which is not supported.")
+                            return False
+                        if object.data.shadow_method != "NOSHADOW":
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
+                            return False
+                        if object.data.falloff_type != "INVERSE_LINEAR":
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
+                            return False
+                        if object.data.spot_blend != 1:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a spot blend other than 1.")
+                            return False
+                        exported["falloff"] = {
+                            "type": "cone",
+                            "radius": write_animation(object, object.data, "distance", 1),
+                            "spotSize": write_animation(object, object.data, "spot_size", 1)
+                        }
+                    else:
+                        self.report({"ERROR"}, "Object \"" + object.name + "\" is a lamp of type \"" + object.type + "\", which is not supported.")
+                        return False
+                    if not exported["color"]: return False
                 elif object.type == "MESH":
                     exported["type"] = "mesh"
                     exported["mesh"] = object.data.name
