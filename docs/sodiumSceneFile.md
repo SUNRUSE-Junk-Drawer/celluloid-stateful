@@ -162,7 +162,7 @@ the origin and away from the "spot" towards -Z.
 	"multiplier": "any number animation",
 	"negative": "any boolean animation",
 	"radius": "any number animation",
-	"size": "any angle number animation"
+	"spotSize": "any angle number animation"
 }
 ```
 
