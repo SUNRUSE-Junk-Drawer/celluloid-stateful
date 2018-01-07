@@ -202,7 +202,10 @@ Does nothing itself, but can be used to organize other scene nodes.
 
 ```json
 {
-	"framesPerSecond": "any number",
+	"framesPerSecond": {
+		"numerator": "any number",
+		"denominator": "any number"
+	},
 	"meshes": "any named collection of meshes",
 	"sceneNodes": "any named collection of scene nodes"
 }
