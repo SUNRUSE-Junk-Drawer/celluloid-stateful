@@ -19,6 +19,8 @@ class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
         json_object = json.loads(json_string)
         bpy.context.scene.render.fps = json_object["framesPerSecond"]["numerator"]
         bpy.context.scene.render.fps_base = json_object["framesPerSecond"]["denominator"]
+        bpy.context.scene.unit_settings.system = "METRIC"
+        bpy.context.scene.unit_settings.scale_length = 1
         material = bpy.data.materials.get("none") or bpy.data.materials.new(name="none")
         material.alpha = 0.25
         material.diffuse_color[0] = 0
@@ -48,6 +50,10 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
     def execute(self, context):
         scene_nodes = {}
         meshes = {}
+
+        if bpy.context.scene.unit_settings.system != "METRIC" or bpy.context.scene.unit_settings.scale_length != 1:
+            self.report({"ERROR"}, "The scene is not in meters.")
+            return {"FINISHED"}
 
         def write_animation(object, data_object, property_name, axes):
             fallback = getattr(data_object, property_name)
