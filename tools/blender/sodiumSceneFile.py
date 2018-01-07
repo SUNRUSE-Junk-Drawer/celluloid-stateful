@@ -30,6 +30,7 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
     def execute(self, context):
         scene_nodes = {}
+        meshes = {}
 
         def write_animation(object, data_object, property_name, axes):
             fallback = getattr(data_object, property_name)
@@ -152,6 +153,32 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                 elif object.type == "MESH":
                     exported["type"] = "mesh"
                     exported["mesh"] = object.data.name
+                    if object.data.name not in meshes:
+                        locations = []
+                        materials = {}
+                        for polygon in object.data.polygons:
+                            material = object.data.materials[polygon.material_index] if object.data.materials else None
+                            if material == None:
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" contains faces without materials, which is not supported.")
+                                return False
+                            if material.name not in ["occluder", "walk", "none"]:
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" contains a material named \"" + material.name + "\", which is not supported.")
+                                return False
+                            if material.name not in materials: materials[material.name] = []
+                            indices = []
+                            for index in polygon.vertices:
+                                location = [
+                                    object.data.vertices[index].co[0],
+                                    object.data.vertices[index].co[1],
+                                    object.data.vertices[index].co[2]
+                                ]
+                                if location not in locations: locations.append(location)
+                                indices.append(locations.index(location))
+                            materials[material.name].append(indices)
+                        meshes[object.data.name] = {
+                            "locations": locations,
+                            "materials": materials
+                        }
                 else:
                     self.report({"ERROR"}, "Object \"" + object.name + "\" is a(n) \"" + object.type + "\", which is not a supported type.")
                     return False
@@ -166,6 +193,7 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                 "numerator": bpy.context.scene.render.fps,
                 "denominator": bpy.context.scene.render.fps_base
             },
+            "meshes": meshes,
             "sceneNodes": scene_nodes
         }, indent=4, sort_keys=True)
         file = open(self.properties.filepath, "w")
