@@ -50,6 +50,7 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
     def execute(self, context):
         scene_nodes = {}
         meshes = {}
+        lights = {}
 
         if bpy.context.scene.unit_settings.system != "METRIC" or bpy.context.scene.unit_settings.scale_length != 1:
             self.report({"ERROR"}, "The scene is not in meters.")
@@ -130,52 +131,62 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                 collection[object.name] = exported
 
                 if object.type == "EMPTY":
-                    exported["type"] = "empty"
+                    pass
                 elif object.type == "LAMP":
                     exported["type"] = "light"
-                    exported["color"] = write_animation(object, object.data, "color", 3)
-                    if object.data.type == "POINT":
-                        if not object.data.use_sphere:
-                            self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
-                            return False
-                        if object.data.shadow_method != "NOSHADOW":
-                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
-                            return False
-                        if object.data.falloff_type != "INVERSE_LINEAR":
-                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
-                            return False
-                        exported["falloff"] = {
-                            "type": "sphere",
-                            "radius": write_animation(object, object.data, "distance", 1)
+                    exported["data"] = object.data.name
+                    if object.data.name not in lights:
+                        data = {
+                            "color": write_animation(object, object.data, "color", 3)
                         }
-                    elif object.data.type == "SPOT":
-                        if not object.data.use_sphere:
-                            self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
+
+                        if not data["color"]: return False
+
+                        if object.data.type == "POINT":
+                            if not object.data.use_sphere:
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
+                                return False
+                            if object.data.shadow_method != "NOSHADOW":
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
+                                return False
+                            if object.data.falloff_type != "INVERSE_LINEAR":
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
+                                return False
+                            data["falloff"] = {
+                                "type": "sphere",
+                                "radius": write_animation(object, object.data, "distance", 1)
+                            }
+                            if not data["falloff"]["radius"]: return False
+                        elif object.data.type == "SPOT":
+                            if not object.data.use_sphere:
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
+                                return False
+                            if object.data.use_square:
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" is a square, which is not supported.")
+                                return False
+                            if object.data.shadow_method != "NOSHADOW":
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
+                                return False
+                            if object.data.falloff_type != "INVERSE_LINEAR":
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
+                                return False
+                            if object.data.spot_blend != 1:
+                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a spot blend other than 1.")
+                                return False
+                            data["falloff"] = {
+                                "type": "cone",
+                                "radius": write_animation(object, object.data, "distance", 1),
+                                "spotSize": write_animation(object, object.data, "spot_size", 1)
+                            }
+                            if not data["falloff"]["radius"]: return False
+                            if not data["falloff"]["spotSize"]: return False
+                        else:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" is a lamp of type \"" + object.type + "\", which is not supported.")
                             return False
-                        if object.data.use_square:
-                            self.report({"ERROR"}, "Object \"" + object.name + "\" is a square, which is not supported.")
-                            return False
-                        if object.data.shadow_method != "NOSHADOW":
-                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
-                            return False
-                        if object.data.falloff_type != "INVERSE_LINEAR":
-                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
-                            return False
-                        if object.data.spot_blend != 1:
-                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a spot blend other than 1.")
-                            return False
-                        exported["falloff"] = {
-                            "type": "cone",
-                            "radius": write_animation(object, object.data, "distance", 1),
-                            "spotSize": write_animation(object, object.data, "spot_size", 1)
-                        }
-                    else:
-                        self.report({"ERROR"}, "Object \"" + object.name + "\" is a lamp of type \"" + object.type + "\", which is not supported.")
-                        return False
-                    if not exported["color"]: return False
+                        lights[object.data.name] = data
                 elif object.type == "MESH":
                     exported["type"] = "mesh"
-                    exported["mesh"] = object.data.name
+                    exported["data"] = object.data.name
                     if object.data.name not in meshes:
                         locations = []
                         materials = {}
@@ -216,7 +227,10 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                 "numerator": bpy.context.scene.render.fps,
                 "denominator": bpy.context.scene.render.fps_base
             },
-            "meshes": meshes,
+            "data": {
+                "meshes": meshes,
+                "lights": lights
+            },
             "sceneNodes": scene_nodes
         }, indent=4, sort_keys=True)
         file = open(self.properties.filepath, "w")
