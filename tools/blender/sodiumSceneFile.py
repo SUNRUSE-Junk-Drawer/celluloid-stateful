@@ -3,20 +3,24 @@ bl_info = {
     "category": "Import-Export"
 }
 
-import bpy
+import bpy, bpy_extras
 
-class ImportSodiumSceneFile(bpy.types.Operator):
+class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import Sodium Scene File"""
     bl_idname = "import.sodiumscenefile"
     bl_label = "Import Sodium Scene File (*.json)"
 
+    filename_ext = ".json"
+
     def execute(self, context):
         return {"FINISHED"}
 
-class ExportSodiumSceneFile(bpy.types.Operator):
+class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """Export Sodium Scene File"""
     bl_idname = "export.sodiumscenefile"
     bl_label = "Export Sodium Scene File (*.json)"
+
+    filename_ext = ".json"
 
     def execute(self, context):
         return {"FINISHED"}
