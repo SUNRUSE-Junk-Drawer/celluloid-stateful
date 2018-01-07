@@ -190,7 +190,7 @@ Does nothing itself, but can be used to organize other scene nodes.
 		"any red number animation",
 		"any green number animation",
 		"any blue number animation"
-	].
+	],
 	"shape": "any falloff",
 	"children": "any named collection of scene nodes"
 }
