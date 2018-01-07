@@ -193,7 +193,7 @@ Does nothing itself, but can be used to organize other scene nodes.
 ```json
 {
 	"type": "mesh",
-	"shape": "any falloff",
+	"mesh": "any mesh name",
 	"children": "any named collection of scene nodes"
 }
 ```
