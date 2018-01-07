@@ -97,7 +97,7 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                     "withValue": fallback[axis]
                 }])
 
-            return output
+            return output if axes > 1 else output[0]
 
         for root_object in bpy.context.scene.objects:
             if root_object.parent: continue
