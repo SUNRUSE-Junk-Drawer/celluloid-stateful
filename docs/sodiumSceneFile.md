@@ -78,21 +78,6 @@ contents do not reorder unexpectedly in source control comparisons.
 }
 ```
 
-### Mesh
-
-Describes a "polygon soup".
-
-```json
-{
-	"locations": [
-		["x number", "y number", "z number"],
-		["x number", "y number", "z number"],
-		["x number", "y number", "z number"]
-	],
-	"materials": "any named collection of arrays of arrays representing polygons of numeric indices into the locations array"
-}
-```
-
 #### Materials
 
 The following material names are supported:
@@ -166,47 +151,6 @@ the origin and away from the "spot" towards -Z.
 }
 ```
 
-### Scene node
-
-#### Empty
-
-Does nothing itself, but can be used to organize other scene nodes.
-
-```json
-{
-	"type": "empty",
-	"transform": "any transform",
-	"children": "any named collection of scene nodes"
-}
-```
-
-#### Light
-
-```json
-{
-	"type": "light",
-	"transform": "any transform",
-	"color": [
-		"any red number animation",
-		"any green number animation",
-		"any blue number animation"
-	],
-	"falloff": "any falloff",
-	"children": "any named collection of scene nodes"
-}
-```
-
-#### Mesh
-
-```json
-{
-	"type": "mesh",
-	"transform": "any transform",
-	"mesh": "any mesh name",
-	"children": "any named collection of scene nodes"
-}
-```
-
 ### Scene
 
 ```json
@@ -215,7 +159,63 @@ Does nothing itself, but can be used to organize other scene nodes.
 		"numerator": "any number",
 		"denominator": "any number"
 	},
-	"meshes": "any named collection of meshes",
+	
+	"data": {
+		"meshes": "any named collection of meshes",
+		"lights": "any named collection of lights"
+	},
 	"sceneNodes": "any named collection of scene nodes"
+}
+```
+
+#### Data
+
+##### Mesh
+
+Describes a "polygon soup".
+
+```json
+{
+	"locations": [
+		["x number", "y number", "z number"],
+		["x number", "y number", "z number"],
+		["x number", "y number", "z number"]
+	],
+	"materials": "any named collection of arrays of arrays representing polygons of numeric indices into the locations array"
+}
+```
+
+##### Light
+
+```json
+{
+	"color": [
+		"any red number animation",
+		"any green number animation",
+		"any blue number animation"
+	],
+	"falloff": "any falloff"
+}
+```
+
+#### Scene Node
+
+##### Empty
+
+```json
+{
+	"transform": "any transform",
+	"children": "any named collection of scene nodes"
+}
+```
+
+##### Non-Empty
+
+```json
+{
+	"type": "any key of scene.data",
+	"transform": "any transform",
+	"data": "any key of scene.data[type]",
+	"children": "any named collection of scene nodes"
 }
 ```
