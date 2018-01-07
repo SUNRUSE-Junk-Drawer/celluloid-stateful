@@ -34,7 +34,7 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                 "numerator": bpy.context.scene.render.fps,
                 "denominator": bpy.context.scene.render.fps_base
             }
-        }, indent=4)
+        }, indent=4, sort_keys=True)
         file = open(self.properties.filepath, "w")
         file.write(json_string)
         file.close()
