@@ -3,7 +3,7 @@ bl_info = {
     "category": "Import-Export"
 }
 
-import bpy, bpy_extras, json
+import bpy, bpy_extras, json, bmesh
 
 class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Import Sodium Scene File"""
@@ -38,6 +38,86 @@ class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
         material = bpy.data.materials.get("occluder") or bpy.data.materials.new(name="occluder")
         material.diffuse_intensity = 1
         material.specular_intensity = 0
+
+        def read_animation(keyframes, object, property_name):
+            if not isinstance(keyframes[0], list): keyframes = [keyframes]
+            first_keyframe_values = []
+            for axis_index, axis in enumerate(keyframes):
+                first_keyframe_values.append(axis[0]["withValue"])
+                if len(axis) == 1 and axis[0]["type"] == "constant" and axis[0]["startsOnFrame"] == 0: continue
+                fcurve = object.animation_data.action.fcurves.new(property_name, axis_index)
+                for keyframe in axis:
+                    created = fcurve.keyframe_points.insert(keyframe["startsOnFrame"], keyframe["withValue"])
+                    if keyframe["type"] == "constant": created.interpolation = "CONSTANT"
+                    elif keyframe["type"] == "linear": created.interpolation = "LINEAR"
+            setattr(object, property_name, first_keyframe_values if len(first_keyframe_values) > 1 else first_keyframe_values[0])
+
+        allData = {
+            "mesh": {},
+            "light": {}
+        }
+
+        for mesh_name, mesh in json_object["data"]["meshes"].items():
+            bm = bmesh.new()
+            for index, location in enumerate(mesh["locations"]): bm.verts.new(location)
+            bm.verts.ensure_lookup_table()
+
+            ordered_materials = []
+            for material_name, polygons in mesh["materials"].items():
+                ordered_materials.append(bpy.data.materials.get(material_name))
+                for polygon in polygons:
+                    vertices = []
+                    for vertex in polygon:
+                        vertices.append(bm.verts[vertex])
+                    face = bm.faces.new(vertices)
+                    face.material_index = len(ordered_materials) - 1
+
+            mesh = bpy.data.meshes.new(mesh_name)
+            for material in ordered_materials: mesh.materials.append(material)
+
+            bm.to_mesh(mesh)
+            allData["mesh"][mesh_name] = mesh
+
+        lights = {}
+        for light_name, light in json_object["data"]["lights"].items():
+            type = None
+            if light["falloff"]["type"] == "sphere": type = "POINT"
+            elif light["falloff"]["type"] == "cone": type = "SPOT"
+            created = bpy.data.lamps.new(name=light_name, type=type)
+            created.animation_data_create()
+            created.animation_data.action = bpy.data.actions.new(name="")
+            read_animation(light["color"], created, "color")
+            if light["falloff"]["type"] == "sphere":
+                read_animation(light["falloff"]["radius"], created, "distance")
+                created.use_sphere = True
+                created.shadow_method = "NOSHADOW"
+                created.falloff_type = "INVERSE_LINEAR"
+            elif light["falloff"]["type"] == "cone":
+                read_animation(light["falloff"]["radius"], created, "distance")
+                read_animation(light["falloff"]["spotSize"], created, "spot_size")
+                created.spot_blend = 1
+                created.use_halo = True
+                created.use_sphere = True
+                created.shadow_method = "NOSHADOW"
+                created.falloff_type = "INVERSE_LINEAR"
+            allData["light"][light_name] = created
+
+        def recurse(parent, children):
+            for object_name, object in children.items():
+                data = None
+                if "data" in object: data = allData[object["type"]][object["data"]]
+                created = bpy.data.objects.new(object_name, data)
+                created.animation_data_create()
+                created.animation_data.action = bpy.data.actions.new(name="")
+                bpy.context.scene.objects.link(created)
+                if parent != None: created.parent = parent
+                read_animation(object["transform"]["translation"], created, "location")
+                read_animation(object["transform"]["rotation"], created, "rotation_euler")
+                read_animation(object["transform"]["scale"], created, "scale")
+                recurse(created, object["children"])
+
+        recurse(None, json_object["sceneNodes"])
+
         return {"FINISHED"}
 
 class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
