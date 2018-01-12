@@ -88,11 +88,15 @@ class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
             created.animation_data.action = bpy.data.actions.new(name="")
             read_animation(light["color"], created, "color")
             if light["falloff"]["type"] == "sphere":
+                read_animation(light["falloff"]["multiplier"], created, "energy")
+                read_animation(light["falloff"]["negative"], created, "use_negative")
                 read_animation(light["falloff"]["radius"], created, "distance")
                 created.use_sphere = True
                 created.shadow_method = "NOSHADOW"
                 created.falloff_type = "INVERSE_LINEAR"
             elif light["falloff"]["type"] == "cone":
+                read_animation(light["falloff"]["multiplier"], created, "energy")
+                read_animation(light["falloff"]["negative"], created, "use_negative")
                 read_animation(light["falloff"]["radius"], created, "distance")
                 read_animation(light["falloff"]["spotSize"], created, "spot_size")
                 created.spot_blend = 1
@@ -136,7 +140,7 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
             self.report({"ERROR"}, "The scene is not in meters.")
             return {"FINISHED"}
 
-        def write_animation(object, data_object, property_name, axes):
+        def write_animation(object, data_object, property_name, axes, is_boolean):
             fallback = getattr(data_object, property_name)
             if axes == 1: fallback = [fallback]
 
@@ -155,9 +159,11 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
                         keyframes = []
                         for keyframe in curve.keyframe_points:
+                            value = keyframe.co[1]
+                            if is_boolean: value = value != 0
                             exported = {
                                 "startsOnFrame": keyframe.co[0],
-                                "withValue": keyframe.co[1]
+                                "withValue": value
                             }
                             if keyframe.interpolation == "CONSTANT": exported["type"] = "constant"
                             elif keyframe.interpolation == "LINEAR": exported["type"] = "linear"
@@ -197,9 +203,9 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
                 exported = {
                     "transform": {
-                        "scale": write_animation(object, object, "scale", 3),
-                        "rotation": write_animation(object, object, "rotation_euler", 3),
-                        "translation": write_animation(object, object, "location", 3)
+                        "scale": write_animation(object, object, "scale", 3, False),
+                        "rotation": write_animation(object, object, "rotation_euler", 3, False),
+                        "translation": write_animation(object, object, "location", 3, False)
                     },
                     "children": {}
                 }
@@ -217,7 +223,7 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                     exported["data"] = object.data.name
                     if object.data.name not in lights:
                         data = {
-                            "color": write_animation(object, object.data, "color", 3)
+                            "color": write_animation(object, object.data, "color", 3, False)
                         }
 
                         if not data["color"]: return False
@@ -234,7 +240,9 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                                 return False
                             data["falloff"] = {
                                 "type": "sphere",
-                                "radius": write_animation(object, object.data, "distance", 1)
+                                "multiplier": write_animation(object, object.data, "energy", 1, False),
+                                "negative": write_animation(object, object.data, "use_negative", 1, True),
+                                "radius": write_animation(object, object.data, "distance", 1, False)
                             }
                             if not data["falloff"]["radius"]: return False
                         elif object.data.type == "SPOT":
@@ -255,8 +263,10 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                                 return False
                             data["falloff"] = {
                                 "type": "cone",
-                                "radius": write_animation(object, object.data, "distance", 1),
-                                "spotSize": write_animation(object, object.data, "spot_size", 1)
+                                "multiplier": write_animation(object, object.data, "energy", 1, False),
+                                "negative": write_animation(object, object.data, "use_negative", 1, True),
+                                "radius": write_animation(object, object.data, "distance", 1, False),
+                                "spotSize": write_animation(object, object.data, "spot_size", 1, False)
                             }
                             if not data["falloff"]["radius"]: return False
                             if not data["falloff"]["spotSize"]: return False
