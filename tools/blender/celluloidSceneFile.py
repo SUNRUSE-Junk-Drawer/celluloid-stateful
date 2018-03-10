@@ -388,9 +388,9 @@ class AddCelluloidLamp(bpy.types.Operator):
 def register():
   bpy.utils.register_class(CelluloidPanel)
   bpy.utils.register_class(SetupCelluloidScene)
+  bpy.utils.register_class(AddCelluloidLamp)
   bpy.utils.register_class(ImportCelluloidSceneFile)
   bpy.utils.register_class(ExportCelluloidSceneFile)
-  bpy.utils.register_class(AddCelluloidLamp)
   bpy.types.INFO_MT_file_import.append(import_menu_func)
   bpy.types.INFO_MT_file_export.append(export_menu_func)
 
