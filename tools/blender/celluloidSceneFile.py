@@ -17,6 +17,7 @@ def initialize_lamp(lamp):
   lamp.data.spot_blend = 0
   lamp.data.falloff_type = "CONSTANT"
   lamp.data.use_specular = False
+  lamp.data.shadow_method = "BUFFER_SHADOW"
   lamp.data.shadow_buffer_type = "REGULAR"
   lamp.data.shadow_buffer_samples = 1
 
