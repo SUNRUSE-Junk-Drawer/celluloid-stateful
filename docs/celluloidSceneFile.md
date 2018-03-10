@@ -193,7 +193,8 @@ Describes a "polygon soup".
 	],
 	"energy": "any number animation",
 	"distance": "any number animation",
-	"spotSize": "any angle number animation"
+	"spotSize": "any angle number animation",
+	"shadowBufferSize": "any number"
 }
 ```
 

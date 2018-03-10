@@ -133,6 +133,7 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       read_animation(light["energy"], created, "energy", False)
       read_animation(light["distance"], created, "distance", False)
       read_animation(light["spotSize"], created, "spot_size", False)
+      created.shadow_buffer_size = light["shadowBufferSize"]
       allData["light"][light_name] = created
 
     def recurse(parent_name, parent):
@@ -290,7 +291,8 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
             "color": write_animation(object, object.data, "color", 3, False),
             "energy": write_animation(object, object.data, "energy", 1, False),
             "distance": write_animation(object, object.data, "distance", 1, False),
-            "spotSize": write_animation(object, object.data, "spot_size", 1, False)
+            "spotSize": write_animation(object, object.data, "spot_size", 1, False),
+            "shadowBufferSize": object.data.shadow_buffer_size
           }
           if not data["energy"]: return {"FINISHED"}
           if not data["distance"]: return {"FINISHED"}
