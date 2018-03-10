@@ -243,6 +243,8 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                             "negative": write_animation(object, object.data, "use_negative", 1, True),
                             "radius": write_animation(object, object.data, "distance", 1, False)
                         }
+                        if not data["falloff"]["multiplier"]: return {"FINISHED"}
+                        if not data["falloff"]["negative"]: return {"FINISHED"}
                         if not data["falloff"]["radius"]: return {"FINISHED"}
                     elif object.data.type == "SPOT":
                         if not object.data.use_sphere:
@@ -267,6 +269,8 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                             "radius": write_animation(object, object.data, "distance", 1, False),
                             "spotSize": write_animation(object, object.data, "spot_size", 1, False)
                         }
+                        if not data["falloff"]["multiplier"]: return {"FINISHED"}
+                        if not data["falloff"]["negative"]: return {"FINISHED"}
                         if not data["falloff"]["radius"]: return {"FINISHED"}
                         if not data["falloff"]["spotSize"]: return {"FINISHED"}
                     else:
