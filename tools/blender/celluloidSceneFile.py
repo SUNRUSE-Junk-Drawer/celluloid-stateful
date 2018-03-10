@@ -1,14 +1,14 @@
 bl_info = {
-    "name": "Sodium Scene File",
+    "name": "Celluloid Scene File",
     "category": "Import-Export"
 }
 
 import bpy, bpy_extras, json, bmesh
 
-class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
-    """Import Sodium Scene File"""
-    bl_idname = "import.sodiumscenefile"
-    bl_label = "Import Sodium Scene File (*.json)"
+class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+    """Import Celluloid Scene File"""
+    bl_idname = "import.celluloidscenefile"
+    bl_label = "Import Celluloid Scene File (*.json)"
 
     filename_ext = ".json"
 
@@ -125,10 +125,10 @@ class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
 
         return {"FINISHED"}
 
-class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
-    """Export Sodium Scene File"""
-    bl_idname = "export.sodiumscenefile"
-    bl_label = "Export Sodium Scene File (*.json)"
+class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+    """Export Celluloid Scene File"""
+    bl_idname = "export.celluloidscenefile"
+    bl_label = "Export Celluloid Scene File (*.json)"
 
     filename_ext = ".json"
 
@@ -327,20 +327,20 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         return {"FINISHED"}
 
 def import_menu_func(self, context):
-    self.layout.operator(ImportSodiumSceneFile.bl_idname)
+    self.layout.operator(ImportCelluloidSceneFile.bl_idname)
 
 def export_menu_func(self, context):
-    self.layout.operator(ExportSodiumSceneFile.bl_idname)
+    self.layout.operator(ExportCelluloidSceneFile.bl_idname)
 
 def register():
-    bpy.utils.register_class(ImportSodiumSceneFile)
-    bpy.utils.register_class(ExportSodiumSceneFile)
+    bpy.utils.register_class(ImportCelluloidSceneFile)
+    bpy.utils.register_class(ExportCelluloidSceneFile)
     bpy.types.INFO_MT_file_import.append(import_menu_func)
     bpy.types.INFO_MT_file_export.append(export_menu_func)
 
 def unregister():
-    bpy.utils.unregister_class(ImportSodiumSceneFile)
-    bpy.utils.unregister_class(ExportSodiumSceneFile)
+    bpy.utils.unregister_class(ImportCelluloidSceneFile)
+    bpy.utils.unregister_class(ExportCelluloidSceneFile)
     bpy.types.INFO_MT_file_import.remove(import_menu_func)
     bpy.types.INFO_MT_file_export.remove(export_menu_func)
 
