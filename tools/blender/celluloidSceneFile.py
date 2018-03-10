@@ -15,6 +15,7 @@ class CelluloidPanel(bpy.types.Panel):
   def draw(self, context):
     self.layout.operator("import.celluloidscenefile", text="Import")
     self.layout.operator("export.celluloidscenefile", text="Export")
+    self.layout.operator("celluloid.lamp_add", text="Add Lamp")
 
 class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
   """Import Celluloid Scene File"""
@@ -358,15 +359,32 @@ def import_menu_func(self, context):
 def export_menu_func(self, context):
   self.layout.operator(ExportCelluloidSceneFile.bl_idname)
 
+class AddCelluloidLamp(bpy.types.Operator):
+  bl_idname = "celluloid.lamp_add"
+  bl_label = "Add Celluloid Lamp"
+
+  def execute(self, context):
+    bpy.ops.object.lamp_add(type="SPOT")
+    lamp = bpy.context.selected_objects[0]
+    lamp.data.use_square = True
+    lamp.data.spot_blend = 0
+    lamp.data.falloff_type = "CONSTANT"
+    lamp.data.use_specular = False
+    lamp.data.shadow_buffer_type = "REGULAR"
+    lamp.data.shadow_buffer_samples = 1
+    return {"FINISHED"}
+
 def register():
   bpy.utils.register_class(CelluloidPanel)
   bpy.utils.register_class(ImportCelluloidSceneFile)
   bpy.utils.register_class(ExportCelluloidSceneFile)
+  bpy.utils.register_class(AddCelluloidLamp)
   bpy.types.INFO_MT_file_import.append(import_menu_func)
   bpy.types.INFO_MT_file_export.append(export_menu_func)
 
 def unregister():
   bpy.utils.unregister_class(CelluloidPanel)
+  bpy.utils.unregister_class(AddCelluloidLamp)
   bpy.utils.unregister_class(ImportCelluloidSceneFile)
   bpy.utils.unregister_class(ExportCelluloidSceneFile)
   bpy.types.INFO_MT_file_import.remove(import_menu_func)
