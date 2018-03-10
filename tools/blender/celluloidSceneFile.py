@@ -11,6 +11,15 @@ def initialize_material(material):
   material.diffuse_toon_smooth = 0
   material.specular_intensity = 0
 
+def initialize_lamp(lamp):
+  lamp.data.type = "SPOT"
+  lamp.data.use_square = True
+  lamp.data.spot_blend = 0
+  lamp.data.falloff_type = "CONSTANT"
+  lamp.data.use_specular = False
+  lamp.data.shadow_buffer_type = "REGULAR"
+  lamp.data.shadow_buffer_samples = 1
+
 class CelluloidPanel(bpy.types.Panel):
   bl_idname = "OBJECT_PT_celluloid"
   bl_label = "Celluloid"
@@ -35,6 +44,9 @@ class SetupCelluloidScene(bpy.types.Operator):
     bpy.context.space_data.show_backface_culling = True;
     for material in bpy.data.materials:
         initialize_material(material)
+    for object in bpy.context.scene.objects:
+      if object.type == "LAMP":
+        initialize_lamp(object)
     return {"FINISHED"}
 
 class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -403,13 +415,7 @@ class AddCelluloidLamp(bpy.types.Operator):
 
   def execute(self, context):
     bpy.ops.object.lamp_add(type="SPOT")
-    lamp = bpy.context.selected_objects[0]
-    lamp.data.use_square = True
-    lamp.data.spot_blend = 0
-    lamp.data.falloff_type = "CONSTANT"
-    lamp.data.use_specular = False
-    lamp.data.shadow_buffer_type = "REGULAR"
-    lamp.data.shadow_buffer_samples = 1
+    initialize_lamp(bpy.context.selected_objects[0])
     return {"FINISHED"}
 
 def register():
