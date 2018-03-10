@@ -21,23 +21,6 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
     bpy.context.scene.render.fps_base = json_object["framesPerSecond"]["denominator"]
     bpy.context.scene.unit_settings.system = "METRIC"
     bpy.context.scene.unit_settings.scale_length = 1
-    material = bpy.data.materials.get("none") or bpy.data.materials.new(name="none")
-    material.alpha = 0.25
-    material.diffuse_color[0] = 0
-    material.diffuse_color[1] = 0
-    material.diffuse_color[2] = 1
-    material.use_transparency = True
-    material.emit = True
-    material = bpy.data.materials.get("walk") or bpy.data.materials.new(name="walk")
-    material.alpha = 0.25
-    material.diffuse_color[0] = 0
-    material.diffuse_color[1] = 1
-    material.diffuse_color[2] = 0
-    material.use_transparency = True
-    material.emit = True
-    material = bpy.data.materials.get("occluder") or bpy.data.materials.new(name="occluder")
-    material.diffuse_intensity = 1
-    material.specular_intensity = 0
 
     def read_animation(keyframes, object, property_name):
       if not isinstance(keyframes[0], list): keyframes = [keyframes]
@@ -53,9 +36,24 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       setattr(object, property_name, first_keyframe_values if len(first_keyframe_values) > 1 else first_keyframe_values[0])
 
     allData = {
+      "material": {},
       "mesh": {},
       "light": {}
     }
+
+    for material_name, material in json_object["data"]["materials"].items():
+      created = bpy.data.materials.new(name=material_name)
+      created.animation_data_create()
+      created.animation_data.action = bpy.data.actions.new(name="")
+
+      read_animation(material["diffuseColor"], created, "diffuse_color")
+      read_animation(material["diffuseIntensity"], created, "diffuse_intensity")
+      read_animation(material["emit"], created, "emit")
+      read_animation(material["useShadeless"], created, "use_shadeless")
+      read_animation(material["useCastShadows"], created, "use_cast_shadows")
+      read_animation(material["useCastShadowsOnly"], created, "use_cast_shadows_only")
+
+      allData["material"][material_name] = created
 
     for mesh_name, mesh in json_object["data"]["meshes"].items():
       bm = bmesh.new()
@@ -64,7 +62,7 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
 
       ordered_materials = []
       for material_name, polygons in mesh["materials"].items():
-        ordered_materials.append(bpy.data.materials.get(material_name))
+        ordered_materials.append(allData["material"][material_name])
         for polygon in polygons:
           vertices = []
           for vertex in polygon:
@@ -134,6 +132,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
 
   def execute(self, context):
     scene_nodes = {}
+    materials = {}
     meshes = {}
     lights = {}
 
@@ -185,6 +184,23 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
         }])
 
       return output if axes > 1 else output[0]
+
+    for material_name, material in bpy.data.materials.items():
+      materials[material_name] = {
+        "diffuseColor": write_animation(material, material, "diffuse_color", 3, False),
+        "diffuseIntensity": write_animation(material, material, "diffuse_intensity", 1, False),
+        "emit": write_animation(material, material, "emit", 1, False),
+        "useShadeless": write_animation(material, material, "use_shadeless", 1, True),
+        "useCastShadows": write_animation(material, material, "use_cast_shadows", 1, True),
+        "useCastShadowsOnly": write_animation(material, material, "use_cast_shadows_only", 1, True)
+      }
+
+      if not materials[material_name]["diffuseColor"]: return {"FINISHED"}
+      if not materials[material_name]["diffuseIntensity"]: return {"FINISHED"}
+      if not materials[material_name]["emit"]: return {"FINISHED"}
+      if not materials[material_name]["useShadeless"]: return {"FINISHED"}
+      if not materials[material_name]["useCastShadows"]: return {"FINISHED"}
+      if not materials[material_name]["useCastShadowsOnly"]: return {"FINISHED"}
 
     for object in bpy.context.scene.objects:
       is_identity = True
@@ -282,16 +298,13 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
         exported["data"] = object.data.name
         if object.data.name not in meshes:
           locations = []
-          materials = {}
+          object_materials = {}
           for polygon in object.data.polygons:
             material = object.data.materials[polygon.material_index] if object.data.materials else None
             if material == None:
               self.report({"ERROR"}, "Object \"" + object.name + "\" contains faces without materials, which is not supported.")
               return {"FINISHED"}
-            if material.name not in ["occluder", "walk", "none"]:
-              self.report({"ERROR"}, "Object \"" + object.name + "\" contains a material named \"" + material.name + "\", which is not supported.")
-              return {"FINISHED"}
-            if material.name not in materials: materials[material.name] = []
+            if material.name not in object_materials: object_materials[material.name] = []
             indices = []
             for index in polygon.vertices:
               location = [
@@ -301,10 +314,10 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
               ]
               if location not in locations: locations.append(location)
               indices.append(locations.index(location))
-            materials[material.name].append(indices)
+            object_materials[material.name].append(indices)
           meshes[object.data.name] = {
             "locations": locations,
-            "materials": materials
+            "materials": object_materials
           }
       else:
         self.report({"ERROR"}, "Object \"" + object.name + "\" is a(n) \"" + object.type + "\", which is not a supported type.")
@@ -316,6 +329,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
         "denominator": bpy.context.scene.render.fps_base
       },
       "data": {
+        "materials": materials,
         "meshes": meshes,
         "lights": lights
       },

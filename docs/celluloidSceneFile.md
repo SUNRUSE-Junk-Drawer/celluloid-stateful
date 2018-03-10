@@ -78,22 +78,6 @@ contents do not reorder unexpectedly in source control comparisons.
 }
 ```
 
-#### Materials
-
-The following material names are supported:
-
-##### occluder
-
-Visible, blocking light, but not solid.
-
-##### walk
-
-Defines the surface on which the player can walk.
-
-##### none
-
-The polygon is not directly used.
-
 ### Transform
 
 Describes how something is positioned relative to its parent.
@@ -161,6 +145,7 @@ the origin and away from the "spot" towards -Z.
 	},
 	
 	"data": {
+		"materials": "any named collection of materials",
 		"meshes": "any named collection of meshes",
 		"lights": "any named collection of lights"
 	},
@@ -169,6 +154,26 @@ the origin and away from the "spot" towards -Z.
 ```
 
 #### Data
+
+##### Material
+
+Describes a material which is applicable to faces of meshes.
+
+```json
+{
+	"diffuseColor": [
+		"any red number animation",
+		"any green number animation",
+		"any blue number animation"
+	],
+	"diffuseIntensity": "any number animation",
+	"emit": "any number animation",
+	"useShadeless": "any boolean animation",
+	"useShadows": "any boolean animation",
+	"useCastShadows": "any boolean animation",
+	"useCastShadowsOnly": "any boolean animation"
+}
+```
 
 ##### Mesh
 
