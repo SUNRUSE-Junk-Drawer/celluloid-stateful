@@ -5,6 +5,12 @@ bl_info = {
 
 import bpy, bpy_extras, json, bmesh
 
+def initialize_material(material):
+  material.diffuse_shader = "TOON"
+  material.diffuse_toon_size = 1
+  material.diffuse_toon_smooth = 0
+  material.specular_intensity = 0
+
 class CelluloidPanel(bpy.types.Panel):
   bl_idname = "OBJECT_PT_celluloid"
   bl_label = "Celluloid"
@@ -27,6 +33,8 @@ class SetupCelluloidScene(bpy.types.Operator):
     bpy.context.scene.unit_settings.scale_length = 1
     bpy.context.scene.render.use_edge_enhance = True
     bpy.context.space_data.show_backface_culling = True;
+    for material in bpy.data.materials:
+        initialize_material(material)
     return {"FINISHED"}
 
 class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -75,6 +83,7 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       read_animation(material["useShadeless"], created, "use_shadeless")
       read_animation(material["useCastShadows"], created, "use_cast_shadows")
       read_animation(material["useCastShadowsOnly"], created, "use_cast_shadows_only")
+      initialize_material(created)
 
       allData["material"][material_name] = created
 
