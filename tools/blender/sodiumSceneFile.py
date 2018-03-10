@@ -106,21 +106,22 @@ class ImportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
                 created.falloff_type = "INVERSE_LINEAR"
             allData["light"][light_name] = created
 
-        def recurse(parent, children):
-            for object_name, object in children.items():
+        def recurse(parent):
+            for object_name, object in json_object["sceneNodes"].items():
+                if object["parent"] != parent: continue
                 data = None
                 if "data" in object: data = allData[object["type"]][object["data"]]
                 created = bpy.data.objects.new(object_name, data)
                 created.animation_data_create()
                 created.animation_data.action = bpy.data.actions.new(name="")
                 bpy.context.scene.objects.link(created)
-                if parent != None: created.parent = parent
+                if parent != None: created.parent = bpy.data.objects[parent]
                 read_animation(object["transform"]["translation"], created, "location")
                 read_animation(object["transform"]["rotation"], created, "rotation_euler")
                 read_animation(object["transform"]["scale"], created, "scale")
-                recurse(created, object["children"])
+                recurse(object_name)
 
-        recurse(None, json_object["sceneNodes"])
+        recurse(None)
 
         return {"FINISHED"}
 
@@ -185,132 +186,125 @@ class ExportSodiumSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
             return output if axes > 1 else output[0]
 
-        for root_object in bpy.context.scene.objects:
-            if root_object.parent: continue
-            def recurse(object, collection):
-                is_identity = True
-                for row_index, row in enumerate(object.matrix_parent_inverse):
-                    for column_index, column in enumerate(row):
-                        expected = 0
-                        if row_index == column_index:
-                            expected = 1
-                        if (abs(column - expected) > 0.001): is_identity = False
+        for object in bpy.context.scene.objects:
+            is_identity = True
+            for row_index, row in enumerate(object.matrix_parent_inverse):
+                for column_index, column in enumerate(row):
+                    expected = 0
+                    if row_index == column_index:
+                        expected = 1
+                    if (abs(column - expected) > 0.001): is_identity = False
 
-                if not is_identity:
-                    original_matrix = object.matrix_world.copy()
-                    object.matrix_parent_inverse.identity()
-                    object.matrix_basis = object.parent.matrix_world.inverted() * original_matrix
+            if not is_identity:
+                original_matrix = object.matrix_world.copy()
+                object.matrix_parent_inverse.identity()
+                object.matrix_basis = object.parent.matrix_world.inverted() * original_matrix
 
-                exported = {
-                    "transform": {
-                        "scale": write_animation(object, object, "scale", 3, False),
-                        "rotation": write_animation(object, object, "rotation_euler", 3, False),
-                        "translation": write_animation(object, object, "location", 3, False)
-                    },
-                    "children": {}
+            exported = {
+                "parent": object.parent.name if object.parent else None,
+                "transform": {
+                    "scale": write_animation(object, object, "scale", 3, False),
+                    "rotation": write_animation(object, object, "rotation_euler", 3, False),
+                    "translation": write_animation(object, object, "location", 3, False)
                 }
+            }
 
-                if not exported["transform"]["scale"]: return False
-                if not exported["transform"]["rotation"]: return False
-                if not exported["transform"]["translation"]: return False
+            if not exported["transform"]["scale"]: return {"FINISHED"}
+            if not exported["transform"]["rotation"]: return {"FINISHED"}
+            if not exported["transform"]["translation"]: return {"FINISHED"}
 
-                collection[object.name] = exported
+            scene_nodes[object.name] = exported
 
-                if object.type == "EMPTY":
-                    pass
-                elif object.type == "LAMP":
-                    exported["type"] = "light"
-                    exported["data"] = object.data.name
-                    if object.data.name not in lights:
-                        data = {
-                            "color": write_animation(object, object.data, "color", 3, False)
+            if object.type == "EMPTY":
+                pass
+            elif object.type == "LAMP":
+                exported["type"] = "light"
+                exported["data"] = object.data.name
+                if object.data.name not in lights:
+                    data = {
+                        "color": write_animation(object, object.data, "color", 3, False)
+                    }
+
+                    if not data["color"]: return {"FINISHED"}
+
+                    if object.data.type == "POINT":
+                        if not object.data.use_sphere:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
+                            return {"FINISHED"}
+                        if object.data.shadow_method != "NOSHADOW":
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
+                            return {"FINISHED"}
+                        if object.data.falloff_type != "INVERSE_LINEAR":
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
+                            return {"FINISHED"}
+                        data["falloff"] = {
+                            "type": "sphere",
+                            "multiplier": write_animation(object, object.data, "energy", 1, False),
+                            "negative": write_animation(object, object.data, "use_negative", 1, True),
+                            "radius": write_animation(object, object.data, "distance", 1, False)
                         }
-
-                        if not data["color"]: return False
-
-                        if object.data.type == "POINT":
-                            if not object.data.use_sphere:
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
-                                return False
-                            if object.data.shadow_method != "NOSHADOW":
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
-                                return False
-                            if object.data.falloff_type != "INVERSE_LINEAR":
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
-                                return False
-                            data["falloff"] = {
-                                "type": "sphere",
-                                "multiplier": write_animation(object, object.data, "energy", 1, False),
-                                "negative": write_animation(object, object.data, "use_negative", 1, True),
-                                "radius": write_animation(object, object.data, "distance", 1, False)
-                            }
-                            if not data["falloff"]["radius"]: return False
-                        elif object.data.type == "SPOT":
-                            if not object.data.use_sphere:
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
-                                return False
-                            if object.data.use_square:
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" is a square, which is not supported.")
-                                return False
-                            if object.data.shadow_method != "NOSHADOW":
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
-                                return False
-                            if object.data.falloff_type != "INVERSE_LINEAR":
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
-                                return False
-                            if object.data.spot_blend != 1:
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" has a spot blend other than 1.")
-                                return False
-                            data["falloff"] = {
-                                "type": "cone",
-                                "multiplier": write_animation(object, object.data, "energy", 1, False),
-                                "negative": write_animation(object, object.data, "use_negative", 1, True),
-                                "radius": write_animation(object, object.data, "distance", 1, False),
-                                "spotSize": write_animation(object, object.data, "spot_size", 1, False)
-                            }
-                            if not data["falloff"]["radius"]: return False
-                            if not data["falloff"]["spotSize"]: return False
-                        else:
-                            self.report({"ERROR"}, "Object \"" + object.name + "\" is a lamp of type \"" + object.type + "\", which is not supported.")
-                            return False
-                        lights[object.data.name] = data
-                elif object.type == "MESH":
-                    exported["type"] = "mesh"
-                    exported["data"] = object.data.name
-                    if object.data.name not in meshes:
-                        locations = []
-                        materials = {}
-                        for polygon in object.data.polygons:
-                            material = object.data.materials[polygon.material_index] if object.data.materials else None
-                            if material == None:
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" contains faces without materials, which is not supported.")
-                                return False
-                            if material.name not in ["occluder", "walk", "none"]:
-                                self.report({"ERROR"}, "Object \"" + object.name + "\" contains a material named \"" + material.name + "\", which is not supported.")
-                                return False
-                            if material.name not in materials: materials[material.name] = []
-                            indices = []
-                            for index in polygon.vertices:
-                                location = [
-                                    object.data.vertices[index].co[0],
-                                    object.data.vertices[index].co[1],
-                                    object.data.vertices[index].co[2]
-                                ]
-                                if location not in locations: locations.append(location)
-                                indices.append(locations.index(location))
-                            materials[material.name].append(indices)
-                        meshes[object.data.name] = {
-                            "locations": locations,
-                            "materials": materials
+                        if not data["falloff"]["radius"]: return {"FINISHED"}
+                    elif object.data.type == "SPOT":
+                        if not object.data.use_sphere:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
+                            return {"FINISHED"}
+                        if object.data.use_square:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" is a square, which is not supported.")
+                            return {"FINISHED"}
+                        if object.data.shadow_method != "NOSHADOW":
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
+                            return {"FINISHED"}
+                        if object.data.falloff_type != "INVERSE_LINEAR":
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
+                            return {"FINISHED"}
+                        if object.data.spot_blend != 1:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" has a spot blend other than 1.")
+                            return {"FINISHED"}
+                        data["falloff"] = {
+                            "type": "cone",
+                            "multiplier": write_animation(object, object.data, "energy", 1, False),
+                            "negative": write_animation(object, object.data, "use_negative", 1, True),
+                            "radius": write_animation(object, object.data, "distance", 1, False),
+                            "spotSize": write_animation(object, object.data, "spot_size", 1, False)
                         }
-                else:
-                    self.report({"ERROR"}, "Object \"" + object.name + "\" is a(n) \"" + object.type + "\", which is not a supported type.")
-                    return False
-                if object.children:
-                    for child in object.children: 
-                        if not recurse(child, exported["children"]): return False
-                return True
-            if not recurse(root_object, scene_nodes): return {"FINISHED"}
+                        if not data["falloff"]["radius"]: return {"FINISHED"}
+                        if not data["falloff"]["spotSize"]: return {"FINISHED"}
+                    else:
+                        self.report({"ERROR"}, "Object \"" + object.name + "\" is a lamp of type \"" + object.type + "\", which is not supported.")
+                        return {"FINISHED"}
+                    lights[object.data.name] = data
+            elif object.type == "MESH":
+                exported["type"] = "mesh"
+                exported["data"] = object.data.name
+                if object.data.name not in meshes:
+                    locations = []
+                    materials = {}
+                    for polygon in object.data.polygons:
+                        material = object.data.materials[polygon.material_index] if object.data.materials else None
+                        if material == None:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" contains faces without materials, which is not supported.")
+                            return {"FINISHED"}
+                        if material.name not in ["occluder", "walk", "none"]:
+                            self.report({"ERROR"}, "Object \"" + object.name + "\" contains a material named \"" + material.name + "\", which is not supported.")
+                            return {"FINISHED"}
+                        if material.name not in materials: materials[material.name] = []
+                        indices = []
+                        for index in polygon.vertices:
+                            location = [
+                                object.data.vertices[index].co[0],
+                                object.data.vertices[index].co[1],
+                                object.data.vertices[index].co[2]
+                            ]
+                            if location not in locations: locations.append(location)
+                            indices.append(locations.index(location))
+                        materials[material.name].append(indices)
+                    meshes[object.data.name] = {
+                        "locations": locations,
+                        "materials": materials
+                    }
+            else:
+                self.report({"ERROR"}, "Object \"" + object.name + "\" is a(n) \"" + object.type + "\", which is not a supported type.")
+                return {"FINISHED"}
 
         json_string = json.dumps({
             "framesPerSecond": {

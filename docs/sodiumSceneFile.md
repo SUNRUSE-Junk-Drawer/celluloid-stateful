@@ -204,8 +204,8 @@ Describes a "polygon soup".
 
 ```json
 {
-	"transform": "any transform",
-	"children": "any named collection of scene nodes"
+	"parent": "any key of scene.sceneNodes, or null if none",
+	"transform": "any transform"
 }
 ```
 
@@ -213,9 +213,9 @@ Describes a "polygon soup".
 
 ```json
 {
+	"parent": "any key of scene.sceneNodes, or null if none",
 	"type": "any key of scene.data",
 	"transform": "any transform",
-	"data": "any key of scene.data[type]",
-	"children": "any named collection of scene nodes"
+	"data": "any key of scene.data[type]"
 }
 ```
