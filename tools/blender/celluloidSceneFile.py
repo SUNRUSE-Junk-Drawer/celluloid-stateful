@@ -103,22 +103,22 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
         created.falloff_type = "INVERSE_LINEAR"
       allData["light"][light_name] = created
 
-    def recurse(parent):
+    def recurse(parent_name, parent):
       for object_name, object in json_object["sceneNodes"].items():
-        if object["parent"] != parent: continue
+        if object["parent"] != parent_name: continue
         data = None
         if "data" in object: data = allData[object["type"]][object["data"]]
         created = bpy.data.objects.new(object_name, data)
         created.animation_data_create()
         created.animation_data.action = bpy.data.actions.new(name="")
         bpy.context.scene.objects.link(created)
-        if parent != None: created.parent = bpy.data.objects[parent]
+        if parent_name != None: created.parent = parent
         read_animation(object["transform"]["translation"], created, "location")
         read_animation(object["transform"]["rotation"], created, "rotation_euler")
         read_animation(object["transform"]["scale"], created, "scale")
-        recurse(object_name)
+        recurse(object_name, created)
 
-    recurse(None)
+    recurse(None, None)
 
     return {"FINISHED"}
 
