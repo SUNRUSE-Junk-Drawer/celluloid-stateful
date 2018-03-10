@@ -38,6 +38,7 @@ class CelluloidPanel(bpy.types.Panel):
     self.layout.operator("celluloid.lamp_add", text="Add Lamp")
 
 class SetupCelluloidScene(bpy.types.Operator):
+  """Configure a new scene for Celluloid"""
   bl_idname = "celluloid.setup_scene"
   bl_label = "Setup Celluloid Scene"
 
@@ -353,6 +354,7 @@ def export_menu_func(self, context):
   self.layout.operator(ExportCelluloidSceneFile.bl_idname)
 
 class AddCelluloidLamp(bpy.types.Operator):
+  """Create a new Lamp which is set up for Celluloid"""
   bl_idname = "celluloid.lamp_add"
   bl_label = "Add Celluloid Lamp"
 
