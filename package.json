@@ -1,4 +1,12 @@
 {
   "name": "celluloid",
-  "description": "A real-time cel-shaded game engine, in your browser."
+  "description": "A real-time cel-shaded game engine, in your browser.",
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "electron": "^1.8.3"
+  },
+  "scripts": {
+    "start": "electron -r babel-register ./src/development_host/index.js"
+  }
 }
