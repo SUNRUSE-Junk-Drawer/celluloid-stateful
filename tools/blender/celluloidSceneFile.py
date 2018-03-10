@@ -25,6 +25,7 @@ class SetupCelluloidScene(bpy.types.Operator):
   def execute(self, context):
     bpy.context.scene.unit_settings.system = "METRIC"
     bpy.context.scene.unit_settings.scale_length = 1
+    bpy.context.scene.render.use_edge_enhance = True
     return {"FINISHED"}
 
 class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
