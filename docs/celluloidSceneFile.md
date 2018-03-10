@@ -157,7 +157,7 @@ the origin and away from the "spot" towards -Z.
 
 ##### Material
 
-Describes a material which is applicable to faces of meshes.
+Describes a material which is applicable to polygons of meshes.
 
 ```json
 {
@@ -186,7 +186,16 @@ Describes a "polygon soup".
 		["x number", "y number", "z number"],
 		["x number", "y number", "z number"]
 	],
-	"materials": "any named collection of arrays of arrays representing polygons of numeric indices into the locations array"
+	"polygons": "any array of polygons"
+}
+```
+
+###### Polygon
+
+```json
+{
+	"material": "any key of scene.data.material",
+	"indices": "any array of numeric indices into the locations array"
 }
 ```
 

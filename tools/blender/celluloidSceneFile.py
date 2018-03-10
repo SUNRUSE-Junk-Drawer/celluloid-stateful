@@ -61,17 +61,16 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       bm.verts.ensure_lookup_table()
 
       ordered_materials = []
-      for material_name, polygons in mesh["materials"].items():
-        ordered_materials.append(allData["material"][material_name])
-        for polygon in polygons:
-          vertices = []
-          for vertex in polygon:
-            vertices.append(bm.verts[vertex])
-          face = bm.faces.new(vertices)
-          face.material_index = len(ordered_materials) - 1
+      for polygon in mesh["polygons"]:
+        if polygon["material"] not in ordered_materials: ordered_materials.append(polygon["material"])
+        vertices = []
+        for vertex in polygon["indices"]:
+          vertices.append(bm.verts[vertex])
+        face = bm.faces.new(vertices)
+        face.material_index = ordered_materials.index(polygon["material"])
 
       mesh = bpy.data.meshes.new(mesh_name)
-      for material in ordered_materials: mesh.materials.append(material)
+      for material_name in ordered_materials: mesh.materials.append(allData["material"][material_name])
 
       bm.to_mesh(mesh)
       allData["mesh"][mesh_name] = mesh
@@ -298,13 +297,12 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
         exported["data"] = object.data.name
         if object.data.name not in meshes:
           locations = []
-          object_materials = {}
+          polygons = []
           for polygon in object.data.polygons:
             material = object.data.materials[polygon.material_index] if object.data.materials else None
             if material == None:
               self.report({"ERROR"}, "Object \"" + object.name + "\" contains faces without materials, which is not supported.")
               return {"FINISHED"}
-            if material.name not in object_materials: object_materials[material.name] = []
             indices = []
             for index in polygon.vertices:
               location = [
@@ -314,10 +312,13 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
               ]
               if location not in locations: locations.append(location)
               indices.append(locations.index(location))
-            object_materials[material.name].append(indices)
+            polygons.append({
+              "material": material.name,
+              "indices": indices
+            })
           meshes[object.data.name] = {
             "locations": locations,
-            "materials": object_materials
+            "polygons": polygons
           }
       else:
         self.report({"ERROR"}, "Object \"" + object.name + "\" is a(n) \"" + object.type + "\", which is not a supported type.")
