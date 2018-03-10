@@ -85,7 +85,7 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
     allData = {
       "material": {},
       "mesh": {},
-      "light": {}
+      "lamp": {}
     }
 
     for material_name, material in json_object["data"]["materials"].items():
@@ -123,18 +123,18 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       bm.to_mesh(mesh)
       allData["mesh"][mesh_name] = mesh
 
-    lights = {}
-    for light_name, light in json_object["data"]["lights"].items():
-      created = bpy.data.lamps.new(name=light_name, type="SPOT")
+    lamps = {}
+    for lamp_name, lamp in json_object["data"]["lamps"].items():
+      created = bpy.data.lamps.new(name=lamp_name, type="SPOT")
       initialize_lamp_data(created)
       created.animation_data_create()
       created.animation_data.action = bpy.data.actions.new(name="")
-      read_animation(light["color"], created, "color", False)
-      read_animation(light["energy"], created, "energy", False)
-      read_animation(light["distance"], created, "distance", False)
-      read_animation(light["spotSize"], created, "spot_size", False)
-      created.shadow_buffer_size = light["shadowBufferSize"]
-      allData["light"][light_name] = created
+      read_animation(lamp["color"], created, "color", False)
+      read_animation(lamp["energy"], created, "energy", False)
+      read_animation(lamp["distance"], created, "distance", False)
+      read_animation(lamp["spotSize"], created, "spot_size", False)
+      created.shadow_buffer_size = lamp["shadowBufferSize"]
+      allData["lamp"][lamp_name] = created
 
     def recurse(parent_name, parent):
       for object_name, object in json_object["sceneNodes"].items():
@@ -168,7 +168,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
     scene_nodes = {}
     materials = {}
     meshes = {}
-    lights = {}
+    lamps = {}
 
     if bpy.context.scene.unit_settings.system != "METRIC" or bpy.context.scene.unit_settings.scale_length != 1:
       self.report({"ERROR"}, "The scene is not in meters.")
@@ -284,9 +284,9 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
       if object.type == "EMPTY":
         pass
       elif object.type == "LAMP":
-        exported["type"] = "light"
+        exported["type"] = "lamp"
         exported["data"] = object.data.name
-        if object.data.name not in lights:
+        if object.data.name not in lamps:
           data = {
             "color": write_animation(object, object.data, "color", 3, False),
             "energy": write_animation(object, object.data, "energy", 1, False),
@@ -298,7 +298,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
           if not data["distance"]: return {"FINISHED"}
           if not data["spotSize"]: return {"FINISHED"}
 
-          lights[object.data.name] = data
+          lamps[object.data.name] = data
       elif object.type == "MESH":
         exported["type"] = "mesh"
         exported["data"] = object.data.name
@@ -339,7 +339,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
       "data": {
         "materials": materials,
         "meshes": meshes,
-        "lights": lights
+        "lamps": lamps
       },
       "sceneNodes": scene_nodes
     }, indent=4, sort_keys=True)

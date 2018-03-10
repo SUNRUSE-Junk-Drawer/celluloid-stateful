@@ -130,7 +130,7 @@ These are applied in the order defined below.
 	"data": {
 		"materials": "any named collection of materials",
 		"meshes": "any named collection of meshes",
-		"lights": "any named collection of lights"
+		"lamps": "any named collection of lamps"
 	},
 	"sceneNodes": "any named collection of scene nodes"
 }
@@ -182,7 +182,7 @@ Describes a "polygon soup".
 }
 ```
 
-##### Light
+##### Lamp
 
 ```json
 {
