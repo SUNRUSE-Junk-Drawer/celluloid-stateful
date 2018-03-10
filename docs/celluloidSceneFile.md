@@ -118,36 +118,6 @@ These are applied in the order defined below.
 }
 ```
 
-### Falloff
-
-Describes the shape of an effect in the world.
-
-#### Sphere
-
-The effect is spherical, linearly falling off to zero from the origin.
-
-```
-{
-	"type": "sphere",
-	"energy": "any number animation",
-	"distance": "any number animation"
-}
-```
-
-#### Cone
-
-The effect is a conical section of a sphere, linearly falling off to zero from
-the origin and away from the "spot" towards -Z.
-
-```
-{
-	"type": "cone",
-	"energy": "any number animation",
-	"distance": "any number animation",
-	"spotSize": "any angle number animation"
-}
-```
-
 ### Scene
 
 ```json
@@ -221,7 +191,9 @@ Describes a "polygon soup".
 		"any green number animation",
 		"any blue number animation"
 	],
-	"falloff": "any falloff"
+	"energy": "any number animation",
+	"distance": "any number animation",
+	"spotSize": "any angle number animation"
 }
 ```
 

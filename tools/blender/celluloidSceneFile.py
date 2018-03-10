@@ -13,13 +13,16 @@ def initialize_material(material):
 
 def initialize_lamp(lamp):
   lamp.data.type = "SPOT"
-  lamp.data.use_square = True
-  lamp.data.spot_blend = 0
-  lamp.data.falloff_type = "CONSTANT"
-  lamp.data.use_specular = False
-  lamp.data.shadow_method = "BUFFER_SHADOW"
-  lamp.data.shadow_buffer_type = "REGULAR"
-  lamp.data.shadow_buffer_samples = 1
+  initialize_lamp_data(lamp.data)
+
+def initialize_lamp_data(lamp_data):
+  lamp_data.use_square = True
+  lamp_data.spot_blend = 0
+  lamp_data.falloff_type = "CONSTANT"
+  lamp_data.use_specular = False
+  lamp_data.shadow_method = "BUFFER_SHADOW"
+  lamp_data.shadow_buffer_type = "REGULAR"
+  lamp_data.shadow_buffer_samples = 1
 
 class CelluloidPanel(bpy.types.Panel):
   bl_idname = "OBJECT_PT_celluloid"
@@ -122,28 +125,14 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
 
     lights = {}
     for light_name, light in json_object["data"]["lights"].items():
-      type = None
-      if light["falloff"]["type"] == "sphere": type = "POINT"
-      elif light["falloff"]["type"] == "cone": type = "SPOT"
-      created = bpy.data.lamps.new(name=light_name, type=type)
+      created = bpy.data.lamps.new(name=light_name, type="SPOT")
+      initialize_lamp_data(created)
       created.animation_data_create()
       created.animation_data.action = bpy.data.actions.new(name="")
       read_animation(light["color"], created, "color", False)
-      if light["falloff"]["type"] == "sphere":
-        read_animation(light["falloff"]["energy"], created, "energy", False)
-        read_animation(light["falloff"]["distance"], created, "distance", False)
-        created.use_sphere = True
-        created.shadow_method = "NOSHADOW"
-        created.falloff_type = "INVERSE_LINEAR"
-      elif light["falloff"]["type"] == "cone":
-        read_animation(light["falloff"]["energy"], created, "energy", False)
-        read_animation(light["falloff"]["distance"], created, "distance", False)
-        read_animation(light["falloff"]["spotSize"], created, "spot_size", False)
-        created.spot_blend = 1
-        created.use_halo = True
-        created.use_sphere = True
-        created.shadow_method = "NOSHADOW"
-        created.falloff_type = "INVERSE_LINEAR"
+      read_animation(light["energy"], created, "energy", False)
+      read_animation(light["distance"], created, "distance", False)
+      read_animation(light["spotSize"], created, "spot_size", False)
       allData["light"][light_name] = created
 
     def recurse(parent_name, parent):
@@ -298,56 +287,15 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
         exported["data"] = object.data.name
         if object.data.name not in lights:
           data = {
-            "color": write_animation(object, object.data, "color", 3, False)
+            "color": write_animation(object, object.data, "color", 3, False),
+            "energy": write_animation(object, object.data, "energy", 1, False),
+            "distance": write_animation(object, object.data, "distance", 1, False),
+            "spotSize": write_animation(object, object.data, "spot_size", 1, False)
           }
+          if not data["energy"]: return {"FINISHED"}
+          if not data["distance"]: return {"FINISHED"}
+          if not data["spotSize"]: return {"FINISHED"}
 
-          if not data["color"]: return {"FINISHED"}
-
-          if object.data.type == "POINT":
-            if not object.data.use_sphere:
-              self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
-              return {"FINISHED"}
-            if object.data.shadow_method != "NOSHADOW":
-              self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
-              return {"FINISHED"}
-            if object.data.falloff_type != "INVERSE_LINEAR":
-              self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
-              return {"FINISHED"}
-            data["falloff"] = {
-              "type": "sphere",
-              "energy": write_animation(object, object.data, "energy", 1, False),
-              "distance": write_animation(object, object.data, "distance", 1, False)
-            }
-            if not data["falloff"]["energy"]: return {"FINISHED"}
-            if not data["falloff"]["distance"]: return {"FINISHED"}
-          elif object.data.type == "SPOT":
-            if not object.data.use_sphere:
-              self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
-              return {"FINISHED"}
-            if object.data.use_square:
-              self.report({"ERROR"}, "Object \"" + object.name + "\" is a square, which is not supported.")
-              return {"FINISHED"}
-            if object.data.shadow_method != "NOSHADOW":
-              self.report({"ERROR"}, "Object \"" + object.name + "\" has a shadow, which is not supported.")
-              return {"FINISHED"}
-            if object.data.falloff_type != "INVERSE_LINEAR":
-              self.report({"ERROR"}, "Object \"" + object.name + "\" has a falloff type of \"" + object.data.falloff_type + "\", which is not supported (use Inverse Linear).")
-              return {"FINISHED"}
-            if object.data.spot_blend != 1:
-              self.report({"ERROR"}, "Object \"" + object.name + "\" has a spot blend other than 1.")
-              return {"FINISHED"}
-            data["falloff"] = {
-              "type": "cone",
-              "energy": write_animation(object, object.data, "energy", 1, False),
-              "distance": write_animation(object, object.data, "distance", 1, False),
-              "spotSize": write_animation(object, object.data, "spot_size", 1, False)
-            }
-            if not data["falloff"]["energy"]: return {"FINISHED"}
-            if not data["falloff"]["distance"]: return {"FINISHED"}
-            if not data["falloff"]["spotSize"]: return {"FINISHED"}
-          else:
-            self.report({"ERROR"}, "Object \"" + object.name + "\" is a lamp of type \"" + object.type + "\", which is not supported.")
-            return {"FINISHED"}
           lights[object.data.name] = data
       elif object.type == "MESH":
         exported["type"] = "mesh"
@@ -410,7 +358,7 @@ class AddCelluloidLamp(bpy.types.Operator):
 
   def execute(self, context):
     bpy.ops.object.lamp_add(type="SPOT")
-    initialize_lamp(bpy.context.selected_objects[0])
+    initialize_lamp_data(bpy.context.selected_objects[0].data)
     return {"FINISHED"}
 
 def register():
