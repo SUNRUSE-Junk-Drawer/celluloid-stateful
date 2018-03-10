@@ -125,7 +125,6 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       bm.to_mesh(mesh)
       allData["mesh"][mesh_name] = mesh
 
-    lamps = {}
     for lamp_name, lamp in json_object["data"]["lamps"].items():
       created = bpy.data.lamps.new(name=lamp_name, type="SPOT")
       initialize_lamp_data(created)
@@ -138,7 +137,6 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       created.shadow_buffer_size = lamp["shadowBufferSize"]
       allData["lamp"][lamp_name] = created
 
-    cameras = {}
     for camera_name, camera in json_object["data"]["cameras"].items():
       created = bpy.data.cameras.new(name=camera_name)
       created.animation_data_create()
