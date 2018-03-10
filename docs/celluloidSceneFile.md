@@ -38,9 +38,24 @@ frames, these would loop 6 and 3 times respectively in a 12 frame period.
 If an animation's first frame is after frame 0, it will wait that many frames
 before starting its first loop.
 
-#### Keyframes
+#### Boolean
 
-##### Constant
+##### Keyframe
+
+The property holds a value until the next value.
+
+```json
+{
+	"startsOnFrame": 0,
+	"withValue": "any JSON"
+}
+```
+
+#### Number
+
+##### Keyframes
+
+###### Constant
 
 The property holds a value until the next value.
 
@@ -52,7 +67,7 @@ The property holds a value until the next value.
 }
 ```
 
-##### Linear
+###### Linear
 
 The property linearly ramps to the next value.
 

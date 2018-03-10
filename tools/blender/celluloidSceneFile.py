@@ -53,16 +53,16 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
     bpy.context.scene.render.fps_base = json_object["framesPerSecond"]["denominator"]
     bpy.ops.celluloid.setup_scene()
 
-    def read_animation(keyframes, object, property_name):
+    def read_animation(keyframes, object, property_name, is_boolean):
       if not isinstance(keyframes[0], list): keyframes = [keyframes]
       first_keyframe_values = []
       for axis_index, axis in enumerate(keyframes):
         first_keyframe_values.append(axis[0]["withValue"])
-        if len(axis) == 1 and axis[0]["type"] == "constant" and axis[0]["startsOnFrame"] == 0: continue
+        if len(axis) == 1 and (is_boolean or axis[0]["type"] == "constant") and axis[0]["startsOnFrame"] == 0: continue
         fcurve = object.animation_data.action.fcurves.new(property_name, axis_index)
         for keyframe in axis:
           created = fcurve.keyframe_points.insert(keyframe["startsOnFrame"], keyframe["withValue"])
-          if keyframe["type"] == "constant": created.interpolation = "CONSTANT"
+          if is_boolean or keyframe["type"] == "constant": created.interpolation = "CONSTANT"
           elif keyframe["type"] == "linear": created.interpolation = "LINEAR"
       setattr(object, property_name, first_keyframe_values if len(first_keyframe_values) > 1 else first_keyframe_values[0])
 
@@ -77,12 +77,12 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       created.animation_data_create()
       created.animation_data.action = bpy.data.actions.new(name="")
 
-      read_animation(material["diffuseColor"], created, "diffuse_color")
-      read_animation(material["diffuseIntensity"], created, "diffuse_intensity")
-      read_animation(material["emit"], created, "emit")
-      read_animation(material["useShadeless"], created, "use_shadeless")
-      read_animation(material["useCastShadows"], created, "use_cast_shadows")
-      read_animation(material["useCastShadowsOnly"], created, "use_cast_shadows_only")
+      read_animation(material["diffuseColor"], created, "diffuse_color", False)
+      read_animation(material["diffuseIntensity"], created, "diffuse_intensity", False)
+      read_animation(material["emit"], created, "emit", False)
+      read_animation(material["useShadeless"], created, "use_shadeless", True)
+      read_animation(material["useCastShadows"], created, "use_cast_shadows", True)
+      read_animation(material["useCastShadowsOnly"], created, "use_cast_shadows_only", True)
       initialize_material(created)
 
       allData["material"][material_name] = created
@@ -115,19 +115,19 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       created = bpy.data.lamps.new(name=light_name, type=type)
       created.animation_data_create()
       created.animation_data.action = bpy.data.actions.new(name="")
-      read_animation(light["color"], created, "color")
+      read_animation(light["color"], created, "color", False)
       if light["falloff"]["type"] == "sphere":
-        read_animation(light["falloff"]["multiplier"], created, "energy")
-        read_animation(light["falloff"]["negative"], created, "use_negative")
-        read_animation(light["falloff"]["radius"], created, "distance")
+        read_animation(light["falloff"]["multiplier"], created, "energy", False)
+        read_animation(light["falloff"]["negative"], created, "use_negative", True)
+        read_animation(light["falloff"]["radius"], created, "distance", False)
         created.use_sphere = True
         created.shadow_method = "NOSHADOW"
         created.falloff_type = "INVERSE_LINEAR"
       elif light["falloff"]["type"] == "cone":
-        read_animation(light["falloff"]["multiplier"], created, "energy")
-        read_animation(light["falloff"]["negative"], created, "use_negative")
-        read_animation(light["falloff"]["radius"], created, "distance")
-        read_animation(light["falloff"]["spotSize"], created, "spot_size")
+        read_animation(light["falloff"]["multiplier"], created, "energy", False)
+        read_animation(light["falloff"]["negative"], created, "use_negative", True)
+        read_animation(light["falloff"]["radius"], created, "distance", False)
+        read_animation(light["falloff"]["spotSize"], created, "spot_size", False)
         created.spot_blend = 1
         created.use_halo = True
         created.use_sphere = True
@@ -145,9 +145,9 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
         created.animation_data.action = bpy.data.actions.new(name="")
         bpy.context.scene.objects.link(created)
         if parent_name != None: created.parent = parent
-        read_animation(object["transform"]["translation"], created, "location")
-        read_animation(object["transform"]["rotation"], created, "rotation_euler")
-        read_animation(object["transform"]["scale"], created, "scale")
+        read_animation(object["transform"]["translation"], created, "location", False)
+        read_animation(object["transform"]["rotation"], created, "rotation_euler", False)
+        read_animation(object["transform"]["scale"], created, "scale", False)
         recurse(object_name, created)
 
     recurse(None, None)
@@ -196,11 +196,16 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
                 "startsOnFrame": keyframe.co[0],
                 "withValue": value
               }
-              if keyframe.interpolation == "CONSTANT": exported["type"] = "constant"
-              elif keyframe.interpolation == "LINEAR": exported["type"] = "linear"
-              else: 
-                self.report({"ERROR"}, "Object \"" + object.name + "\" contains unexpected interpolation type \"" + keyframe.interpolation + "\".")
-                return False
+              if is_boolean:
+                if keyframe.interpolation != "CONSTANT":
+                  self.report({"ERROR"}, "Object \"" + object.name + "\" contains unexpected interpolation type \"" + keyframe.interpolation + "\".")
+                  return False
+              else:
+                if keyframe.interpolation == "CONSTANT": exported["type"] = "constant"
+                elif keyframe.interpolation == "LINEAR": exported["type"] = "linear"
+                else: 
+                  self.report({"ERROR"}, "Object \"" + object.name + "\" contains unexpected interpolation type \"" + keyframe.interpolation + "\".")
+                  return False
               keyframes.append(exported)
 
             output.append(keyframes)
@@ -208,11 +213,18 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
             found = True
             break
 
-        if not found: output.append([{
-          "type": "constant",
-          "startsOnFrame": 0,
-          "withValue": fallback[axis]
-        }])
+        if not found: 
+          if is_boolean:
+            output.append([{
+              "startsOnFrame": 0,
+              "withValue": fallback[axis]
+            }])
+          else:
+            output.append([{
+              "type": "constant",
+              "startsOnFrame": 0,
+              "withValue": fallback[axis]
+            }])
 
       return output if axes > 1 else output[0]
 
