@@ -170,9 +170,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
     meshes = {}
     lamps = {}
 
-    if bpy.context.scene.unit_settings.system != "METRIC" or bpy.context.scene.unit_settings.scale_length != 1:
-      self.report({"ERROR"}, "The scene is not in meters.")
-      return {"FINISHED"}
+    bpy.ops.celluloid.setup_scene()
 
     def write_animation(object, data_object, property_name, axes, is_boolean):
       fallback = getattr(data_object, property_name)
