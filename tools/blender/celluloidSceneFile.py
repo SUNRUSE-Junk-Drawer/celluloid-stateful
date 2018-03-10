@@ -13,9 +13,19 @@ class CelluloidPanel(bpy.types.Panel):
   bl_category = "Tools"
 
   def draw(self, context):
+    self.layout.operator("celluloid.setup_scene", text="Setup Scene")
     self.layout.operator("import.celluloidscenefile", text="Import")
     self.layout.operator("export.celluloidscenefile", text="Export")
     self.layout.operator("celluloid.lamp_add", text="Add Lamp")
+
+class SetupCelluloidScene(bpy.types.Operator):
+  bl_idname = "celluloid.setup_scene"
+  bl_label = "Setup Celluloid Scene"
+
+  def execute(self, context):
+    bpy.context.scene.unit_settings.system = "METRIC"
+    bpy.context.scene.unit_settings.scale_length = 1
+    return {"FINISHED"}
 
 class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
   """Import Celluloid Scene File"""
@@ -31,8 +41,7 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
     json_object = json.loads(json_string)
     bpy.context.scene.render.fps = json_object["framesPerSecond"]["numerator"]
     bpy.context.scene.render.fps_base = json_object["framesPerSecond"]["denominator"]
-    bpy.context.scene.unit_settings.system = "METRIC"
-    bpy.context.scene.unit_settings.scale_length = 1
+    bpy.ops.celluloid.setup_scene()
 
     def read_animation(keyframes, object, property_name):
       if not isinstance(keyframes[0], list): keyframes = [keyframes]
@@ -376,6 +385,7 @@ class AddCelluloidLamp(bpy.types.Operator):
 
 def register():
   bpy.utils.register_class(CelluloidPanel)
+  bpy.utils.register_class(SetupCelluloidScene)
   bpy.utils.register_class(ImportCelluloidSceneFile)
   bpy.utils.register_class(ExportCelluloidSceneFile)
   bpy.utils.register_class(AddCelluloidLamp)
@@ -384,6 +394,7 @@ def register():
 
 def unregister():
   bpy.utils.unregister_class(CelluloidPanel)
+  bpy.utils.unregister_class(SetupCelluloidScene)
   bpy.utils.unregister_class(AddCelluloidLamp)
   bpy.utils.unregister_class(ImportCelluloidSceneFile)
   bpy.utils.unregister_class(ExportCelluloidSceneFile)
