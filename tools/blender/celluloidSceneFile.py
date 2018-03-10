@@ -86,7 +86,8 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
     allData = {
       "material": {},
       "mesh": {},
-      "lamp": {}
+      "lamp": {},
+      "camera": {}
     }
 
     for material_name, material in json_object["data"]["materials"].items():
@@ -137,6 +138,16 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       created.shadow_buffer_size = lamp["shadowBufferSize"]
       allData["lamp"][lamp_name] = created
 
+    cameras = {}
+    for camera_name, camera in json_object["data"]["cameras"].items():
+      created = bpy.data.cameras.new(name=camera_name)
+      created.animation_data_create()
+      created.animation_data.action = bpy.data.actions.new(name="")
+      read_animation(camera["clipStart"], created, "clip_start", False)
+      read_animation(camera["clipEnd"], created, "clip_end", False)
+      read_animation(camera["lens"], created, "lens", False)
+      allData["camera"][camera_name] = created
+
     def recurse(parent_name, parent):
       for object_name, object in json_object["sceneNodes"].items():
         if object["parent"] != parent_name: continue
@@ -170,6 +181,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
     materials = {}
     meshes = {}
     lamps = {}
+    cameras = {}
 
     bpy.ops.celluloid.setup_scene()
 
@@ -326,6 +338,19 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
             "locations": locations,
             "polygons": polygons
           }
+      elif object.type == "CAMERA":
+        exported["type"] = "camera"
+        exported["data"] = object.data.name
+        if object.data.name not in cameras:
+          data = {
+            "clipStart": write_animation(object, object.data, "clip_start", 1, False),
+            "clipEnd": write_animation(object, object.data, "clip_end", 1, False),
+            "lens": write_animation(object, object.data, "lens", 1, False)
+          }
+          if not data["clipStart"]: return {"FINISHED"}
+          if not data["clipEnd"]: return {"FINISHED"}
+          if not data["lens"]: return {"FINISHED"}
+          cameras[object.data.name] = data
       else:
         self.report({"ERROR"}, "Object \"" + object.name + "\" is a(n) \"" + object.type + "\", which is not a supported type.")
         return {"FINISHED"}
@@ -338,7 +363,8 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
       "data": {
         "materials": materials,
         "meshes": meshes,
-        "lamps": lamps
+        "lamps": lamps,
+        "cameras": cameras
       },
       "sceneNodes": scene_nodes
     }, indent=4, sort_keys=True)

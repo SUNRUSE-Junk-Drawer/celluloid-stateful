@@ -130,7 +130,8 @@ These are applied in the order defined below.
 	"data": {
 		"materials": "any named collection of materials",
 		"meshes": "any named collection of meshes",
-		"lamps": "any named collection of lamps"
+		"lamps": "any named collection of lamps",
+		"cameras": "any named collection of cameras"
 	},
 	"sceneNodes": "any named collection of scene nodes"
 }
@@ -195,6 +196,16 @@ Describes a "polygon soup".
 	"distance": "any number animation",
 	"spotSize": "any angle number animation",
 	"shadowBufferSize": "any number"
+}
+```
+
+##### Camera
+
+```json
+{
+	"clip_start": "any number animation",
+	"clip_end": "any number animation",
+	"lens": "any number animation"
 }
 ```
 
