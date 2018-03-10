@@ -5,6 +5,17 @@ bl_info = {
 
 import bpy, bpy_extras, json, bmesh
 
+class CelluloidPanel(bpy.types.Panel):
+  bl_idname = "OBJECT_PT_celluloid"
+  bl_label = "Celluloid"
+  bl_space_type = "VIEW_3D"
+  bl_region_type = "TOOLS"
+  bl_category = "Tools"
+
+  def draw(self, context):
+    self.layout.operator("import.celluloidscenefile", text="Import")
+    self.layout.operator("export.celluloidscenefile", text="Export")
+
 class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
   """Import Celluloid Scene File"""
   bl_idname = "import.celluloidscenefile"
@@ -348,12 +359,14 @@ def export_menu_func(self, context):
   self.layout.operator(ExportCelluloidSceneFile.bl_idname)
 
 def register():
+  bpy.utils.register_class(CelluloidPanel)
   bpy.utils.register_class(ImportCelluloidSceneFile)
   bpy.utils.register_class(ExportCelluloidSceneFile)
   bpy.types.INFO_MT_file_import.append(import_menu_func)
   bpy.types.INFO_MT_file_export.append(export_menu_func)
 
 def unregister():
+  bpy.utils.unregister_class(CelluloidPanel)
   bpy.utils.unregister_class(ImportCelluloidSceneFile)
   bpy.utils.unregister_class(ExportCelluloidSceneFile)
   bpy.types.INFO_MT_file_import.remove(import_menu_func)
