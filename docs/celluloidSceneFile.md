@@ -234,7 +234,9 @@ Describes a "polygon soup".
 ```json
 {
 	"parent": "any key of scene.sceneNodes, or null if none",
-	"transform": "any transform"
+	"transform": "any transform",
+	"hide": "any boolean animation",
+	"hideRender": "any boolean animation"
 }
 ```
 
@@ -245,6 +247,8 @@ Describes a "polygon soup".
 	"parent": "any key of scene.sceneNodes, or null if none",
 	"type": "any key of scene.data",
 	"transform": "any transform",
-	"data": "any key of scene.data[type]"
+	"data": "any key of scene.data[type]",
+	"hide": "any boolean animation",
+	"hideRender": "any boolean animation"
 }
 ```

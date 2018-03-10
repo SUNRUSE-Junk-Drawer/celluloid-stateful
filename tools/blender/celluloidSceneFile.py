@@ -148,6 +148,8 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
         read_animation(object["transform"]["translation"], created, "location", False)
         read_animation(object["transform"]["rotation"], created, "rotation_euler", False)
         read_animation(object["transform"]["scale"], created, "scale", False)
+        read_animation(object["hide"], created, "hide", True)
+        read_animation(object["hideRender"], created, "hide_render", True)
         recurse(object_name, created)
 
     recurse(None, None)
@@ -265,12 +267,16 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
           "scale": write_animation(object, object, "scale", 3, False),
           "rotation": write_animation(object, object, "rotation_euler", 3, False),
           "translation": write_animation(object, object, "location", 3, False)
-        }
+        },
+        "hide": write_animation(object, object, "hide", 1, True),
+        "hideRender": write_animation(object, object, "hide_render", 1, True)
       }
 
       if not exported["transform"]["scale"]: return {"FINISHED"}
       if not exported["transform"]["rotation"]: return {"FINISHED"}
       if not exported["transform"]["translation"]: return {"FINISHED"}
+      if not exported["hide"]: return {"FINISHED"}
+      if not exported["hideRender"]: return {"FINISHED"}
 
       scene_nodes[object.name] = exported
 
