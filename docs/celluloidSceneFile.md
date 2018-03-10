@@ -130,7 +130,6 @@ The effect is spherical, linearly falling off to zero from the origin.
 {
 	"type": "sphere",
 	"multiplier": "any number animation",
-	"negative": "any boolean animation",
 	"radius": "any number animation"
 }
 ```
@@ -144,7 +143,6 @@ the origin and away from the "spot" towards -Z.
 {
 	"type": "cone",
 	"multiplier": "any number animation",
-	"negative": "any boolean animation",
 	"radius": "any number animation",
 	"spotSize": "any angle number animation"
 }

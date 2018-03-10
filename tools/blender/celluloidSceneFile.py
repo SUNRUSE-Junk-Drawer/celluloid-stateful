@@ -130,14 +130,12 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       read_animation(light["color"], created, "color", False)
       if light["falloff"]["type"] == "sphere":
         read_animation(light["falloff"]["multiplier"], created, "energy", False)
-        read_animation(light["falloff"]["negative"], created, "use_negative", True)
         read_animation(light["falloff"]["radius"], created, "distance", False)
         created.use_sphere = True
         created.shadow_method = "NOSHADOW"
         created.falloff_type = "INVERSE_LINEAR"
       elif light["falloff"]["type"] == "cone":
         read_animation(light["falloff"]["multiplier"], created, "energy", False)
-        read_animation(light["falloff"]["negative"], created, "use_negative", True)
         read_animation(light["falloff"]["radius"], created, "distance", False)
         read_animation(light["falloff"]["spotSize"], created, "spot_size", False)
         created.spot_blend = 1
@@ -317,11 +315,9 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
             data["falloff"] = {
               "type": "sphere",
               "multiplier": write_animation(object, object.data, "energy", 1, False),
-              "negative": write_animation(object, object.data, "use_negative", 1, True),
               "radius": write_animation(object, object.data, "distance", 1, False)
             }
             if not data["falloff"]["multiplier"]: return {"FINISHED"}
-            if not data["falloff"]["negative"]: return {"FINISHED"}
             if not data["falloff"]["radius"]: return {"FINISHED"}
           elif object.data.type == "SPOT":
             if not object.data.use_sphere:
@@ -342,12 +338,10 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
             data["falloff"] = {
               "type": "cone",
               "multiplier": write_animation(object, object.data, "energy", 1, False),
-              "negative": write_animation(object, object.data, "use_negative", 1, True),
               "radius": write_animation(object, object.data, "distance", 1, False),
               "spotSize": write_animation(object, object.data, "spot_size", 1, False)
             }
             if not data["falloff"]["multiplier"]: return {"FINISHED"}
-            if not data["falloff"]["negative"]: return {"FINISHED"}
             if not data["falloff"]["radius"]: return {"FINISHED"}
             if not data["falloff"]["spotSize"]: return {"FINISHED"}
           else:
