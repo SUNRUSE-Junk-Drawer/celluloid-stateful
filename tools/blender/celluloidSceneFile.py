@@ -130,14 +130,14 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       created.animation_data.action = bpy.data.actions.new(name="")
       read_animation(light["color"], created, "color", False)
       if light["falloff"]["type"] == "sphere":
-        read_animation(light["falloff"]["multiplier"], created, "energy", False)
-        read_animation(light["falloff"]["radius"], created, "distance", False)
+        read_animation(light["falloff"]["energy"], created, "energy", False)
+        read_animation(light["falloff"]["distance"], created, "distance", False)
         created.use_sphere = True
         created.shadow_method = "NOSHADOW"
         created.falloff_type = "INVERSE_LINEAR"
       elif light["falloff"]["type"] == "cone":
-        read_animation(light["falloff"]["multiplier"], created, "energy", False)
-        read_animation(light["falloff"]["radius"], created, "distance", False)
+        read_animation(light["falloff"]["energy"], created, "energy", False)
+        read_animation(light["falloff"]["distance"], created, "distance", False)
         read_animation(light["falloff"]["spotSize"], created, "spot_size", False)
         created.spot_blend = 1
         created.use_halo = True
@@ -315,11 +315,11 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
               return {"FINISHED"}
             data["falloff"] = {
               "type": "sphere",
-              "multiplier": write_animation(object, object.data, "energy", 1, False),
-              "radius": write_animation(object, object.data, "distance", 1, False)
+              "energy": write_animation(object, object.data, "energy", 1, False),
+              "distance": write_animation(object, object.data, "distance", 1, False)
             }
-            if not data["falloff"]["multiplier"]: return {"FINISHED"}
-            if not data["falloff"]["radius"]: return {"FINISHED"}
+            if not data["falloff"]["energy"]: return {"FINISHED"}
+            if not data["falloff"]["distance"]: return {"FINISHED"}
           elif object.data.type == "SPOT":
             if not object.data.use_sphere:
               self.report({"ERROR"}, "Object \"" + object.name + "\" is non-spherical, which is not supported.")
@@ -338,12 +338,12 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
               return {"FINISHED"}
             data["falloff"] = {
               "type": "cone",
-              "multiplier": write_animation(object, object.data, "energy", 1, False),
-              "radius": write_animation(object, object.data, "distance", 1, False),
+              "energy": write_animation(object, object.data, "energy", 1, False),
+              "distance": write_animation(object, object.data, "distance", 1, False),
               "spotSize": write_animation(object, object.data, "spot_size", 1, False)
             }
-            if not data["falloff"]["multiplier"]: return {"FINISHED"}
-            if not data["falloff"]["radius"]: return {"FINISHED"}
+            if not data["falloff"]["energy"]: return {"FINISHED"}
+            if not data["falloff"]["distance"]: return {"FINISHED"}
             if not data["falloff"]["spotSize"]: return {"FINISHED"}
           else:
             self.report({"ERROR"}, "Object \"" + object.name + "\" is a lamp of type \"" + object.type + "\", which is not supported.")
