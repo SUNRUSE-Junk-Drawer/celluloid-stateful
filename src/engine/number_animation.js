@@ -23,3 +23,27 @@ export class ConstantNumberAnimation {
     this.withValue = withValue
   }
 }
+
+export function parseNumberAnimation(fileParser) {
+  const numberOfKeyframes = fileParser.uint16()
+  if (!numberOfKeyframes) {
+    const value = fileParser.float32()
+    return new ConstantNumberAnimation(value)
+  } else {
+    const keyframes = []
+    while (keyframes.length < numberOfKeyframes) {
+      const startsOnFrame = fileParser.float32()
+
+      switch (fileParser.uint8()) {
+        case 0: {
+          keyframes.push(new NumberConstantKeyframe(startsOnFrame, fileParser.float32()))
+        } break
+
+        case 1: {
+          keyframes.push(new NumberLinearKeyframe(startsOnFrame, fileParser.float32()))
+        } break
+      }
+    }
+    return new NumberAnimation(keyframes)
+  }
+}
