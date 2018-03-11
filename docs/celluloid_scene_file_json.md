@@ -1,4 +1,4 @@
-# Celluloid Scene File
+# Celluloid Scene File (JSON)
 
 A scene file is a JSON document describing a scene graph which can be rendered
 using Celluloid.  It is intended to be source controllable and able to 
