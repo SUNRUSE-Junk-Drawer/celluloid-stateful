@@ -3,7 +3,7 @@ bl_info = {
   "category": "Import-Export"
 }
 
-import bpy, bpy_extras, json, bmesh
+import bpy, bpy_extras, json, bmesh, struct
 
 def initialize_material(material):
   material.diffuse_shader = "TOON"
@@ -369,9 +369,167 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
       },
       "sceneNodes": scene_nodes
     }, indent=4, sort_keys=True)
+
+    material_names_in_order = list(materials.keys())
+    mesh_names_in_order = list(meshes.keys())
+    lamp_names_in_order = list(lamps.keys())
+    camera_names_in_order = list(cameras.keys())
+    
+    scene_node_names_in_order = []
+    for scene_node_name in scene_nodes:
+      scene_node = scene_nodes[scene_node_name]
+      if scene_node["parent"] != None: continue
+      scene_node_names_in_order.append(scene_node_name)
+
+    while len(scene_node_names_in_order) < len(scene_nodes):
+      for scene_node_name in scene_nodes:
+        if scene_node_name in scene_node_names_in_order: continue
+        scene_node = scene_nodes[scene_node_name]
+        if scene_node["parent"] not in scene_node_names_in_order: continue
+        scene_node_names_in_order.append(scene_node_name)
+
+    binary_string = {"":b""}
+
+    def write_utf8(value):
+      binary_string[""] += value.encode("utf8")
+      write_uint8(0)
+
+    def write_uint8(value):
+      binary_string[""] += struct.pack("<B", value)
+            
+    def write_uint16(value):
+      binary_string[""] += struct.pack("<H", value)
+        
+    def write_float32(value):
+      binary_string[""] += struct.pack("<f", value)
+
+    def write_boolean_animation(value):
+      if len(value) == 1:
+        write_uint16(0)
+        write_uint8(1 if value[0]["withValue"] else 0)
+      else:
+        write_uint16(len(value))
+        for keyframe in value:
+          write_float32(keyframe["startsOnFrame"])
+          write_uint8(1 if keyframe["withValue"] else 0)
+
+    def write_number_animation(value):
+      if len(value) == 1:
+        write_uint16(0)
+        write_float32(value[0]["withValue"])
+      else:
+        write_uint16(len(value))
+        for keyframe in value:
+          write_float32(keyframe["startsOnFrame"])
+          write_uint8(1 if keyframe["type"] == "linear" else 0)
+          write_float32(keyframe["withValue"])
+
+    write_uint16(len(material_names_in_order))
+    for material_name in material_names_in_order:
+      write_utf8(material_name)
+      for channel in materials[material_name]["diffuseColor"]:
+        write_number_animation(channel)
+      write_number_animation(materials[material_name]["diffuseIntensity"])
+      write_number_animation(materials[material_name]["emit"])
+      write_boolean_animation(materials[material_name]["useShadeless"])
+      write_boolean_animation(materials[material_name]["useShadows"])
+      write_boolean_animation(materials[material_name]["useCastShadows"])
+      write_boolean_animation(materials[material_name]["useCastShadowsOnly"])
+
+    write_uint16(len(mesh_names_in_order))
+    for mesh_name in mesh_names_in_order:
+      write_utf8(mesh_name)
+
+      write_uint16(len(meshes[mesh_name]["locations"]))
+      for location in meshes[mesh_name]["locations"]:
+        for axis in location:
+          write_float32(axis)
+
+      ordered_mesh_material_names = []
+      indices_by_material_name = {}
+      for polygon in meshes[mesh_name]["polygons"]:
+        material_name = polygon["material"]
+        if material_name not in ordered_mesh_material_names:
+          ordered_mesh_material_names.append(material_name)
+          indices_by_material_name[material_name] = []
+        
+        indices = polygon["indices"]
+        for i in range(0, len(indices) - 2):
+          indices_by_material_name[material_name].append([
+            indices[0],
+            indices[i + 1],
+            indices[i + 2]
+          ])
+      
+      write_uint8(len(ordered_mesh_material_names))
+
+      for material_name in ordered_mesh_material_names:
+        write_uint16(material_names_in_order.index(material_name))
+        write_uint16(len(indices_by_material_name[material_name]))
+        for indices in indices_by_material_name[material_name]:
+          for index in indices:
+            write_uint16(index)
+
+    write_uint16(len(lamp_names_in_order))
+    for lamp_name in lamp_names_in_order:
+      write_utf8(lamp_name)
+      lamp = lamps[lamp_name]
+      for channel in lamp["color"]:
+        write_number_animation(channel)
+      write_number_animation(lamp["energy"])
+      write_number_animation(lamp["distance"])
+      write_number_animation(lamp["spotSize"])
+      write_uint16(lamp["shadowBufferSize"])
+
+    write_uint16(len(camera_names_in_order))
+    for camera_name in camera_names_in_order:
+      write_utf8(camera_name)
+      camera = cameras[camera_name]
+      write_number_animation(camera["clipStart"])
+      write_number_animation(camera["clipEnd"])
+      write_number_animation(camera["lens"])
+
+    write_uint16(len(scene_node_names_in_order))
+    for scene_node_name in scene_node_names_in_order:
+      write_utf8(scene_node_name)
+      scene_node = scene_nodes[scene_node_name]
+      if "type" not in scene_node:
+        write_uint8(0)
+      elif scene_node["type"] == "mesh":
+        write_uint8(1)
+      elif scene_node["type"] == "lamp":
+        write_uint8(2)
+      elif scene_node["type"] == "camera":
+        write_uint8(3)
+      write_uint16(scene_node_names_in_order.index(scene_node["parent"]) if scene_node["parent"] != None else 65535)
+      for axis in scene_node["transform"]["translation"]:
+        write_number_animation(axis)
+      for axis in scene_node["transform"]["scale"]:
+        write_number_animation(axis)
+      for axis in scene_node["transform"]["rotation"]:
+        write_number_animation(axis)
+      write_boolean_animation(scene_node["hideRender"])
+      if "type" in scene_node:
+        if scene_node["type"] == "mesh":
+          write_uint16(mesh_names_in_order.index(scene_node["data"]))
+        elif scene_node["type"] == "lamp":
+          write_uint16(lamp_names_in_order.index(scene_node["data"]))
+        elif scene_node["type"] == "camera":
+          write_uint16(camera_names_in_order.index(scene_node["data"]))
+
+    binary_filepath = self.properties.filepath
+    if binary_filepath.endswith(".json"):
+      binary_filepath = binary_filepath[:-5]
+    binary_filepath += ".bin"
+
     file = open(self.properties.filepath, "w")
     file.write(json_string)
     file.close()
+
+    file = open(binary_filepath, "wb")
+    file.write(binary_string[""])
+    file.close()
+
     return {"FINISHED"}
 
 def import_menu_func(self, context):
