@@ -126,7 +126,14 @@ These are applied in the order defined below.
 		"numerator": "any number",
 		"denominator": "any number"
 	},
-	
+	"ambientLight": {
+		"color": [
+			"any red number animation",
+			"any green number animation",
+			"any blue number animation"
+		],
+		"energy": "any number animation"
+	},
 	"data": {
 		"materials": "any named collection of materials",
 		"meshes": "any named collection of meshes",

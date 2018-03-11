@@ -39,6 +39,9 @@ Otherwise, for each keyframe, in frame order:
 
 ## Scene
 
+- 3 number animations specifying the red, green and blue color of the ambient light.
+- A number animation specifying the intensity of the ambient light.
+
 - A uint16 specifying how many material data objects there are.
 
 For each material data object:

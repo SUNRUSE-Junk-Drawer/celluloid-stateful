@@ -50,8 +50,17 @@ class SetupCelluloidScene(bpy.types.Operator):
     for material in bpy.data.materials:
         initialize_material(material)
     for object in bpy.context.scene.objects:
-      if object.type == "LAMP":
+      if object.type == "LAMP" and object.name != "ambient_light":
         initialize_lamp(object)
+
+    if "ambient_light" not in bpy.context.scene.objects:
+      ambient_light_data = bpy.data.lamps.new(name="ambient_light", type="SUN")
+      ambient_light_data.energy = 0
+      ambient_light = bpy.data.objects.new("ambient_light", ambient_light_data)
+      ambient_light.animation_data_create()
+      ambient_light.animation_data.action = bpy.data.actions.new(name="")
+      bpy.context.scene.objects.link(ambient_light)
+
     return {"FINISHED"}
 
 class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
@@ -82,6 +91,10 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
           if is_boolean or keyframe["type"] == "constant": created.interpolation = "CONSTANT"
           elif keyframe["type"] == "linear": created.interpolation = "LINEAR"
       setattr(object, property_name, first_keyframe_values if len(first_keyframe_values) > 1 else first_keyframe_values[0])
+
+    ambient_light = bpy.context.scene.objects["ambient_light"]
+    read_animation(json_object["ambientLight"]["color"], ambient_light.data, "color", False)
+    read_animation(json_object["ambientLight"]["energy"], ambient_light.data, "energy", False)
 
     allData = {
       "material": {},
@@ -261,6 +274,8 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
       if not materials[material_name]["useCastShadowsOnly"]: return {"FINISHED"}
 
     for object in bpy.context.scene.objects:
+      if object.name == "ambient_light": continue
+
       is_identity = True
       for row_index, row in enumerate(object.matrix_parent_inverse):
         for column_index, column in enumerate(row):
@@ -356,10 +371,16 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
         self.report({"ERROR"}, "Object \"" + object.name + "\" is a(n) \"" + object.type + "\", which is not a supported type.")
         return {"FINISHED"}
 
-    json_string = json.dumps({
+    ambient_light = bpy.context.scene.objects["ambient_light"]
+
+    json_object = {
       "framesPerSecond": {
         "numerator": bpy.context.scene.render.fps,
         "denominator": bpy.context.scene.render.fps_base
+      },
+      "ambientLight": {
+        "color": write_animation(ambient_light, ambient_light.data, "color", 3, False),
+        "energy": write_animation(ambient_light, ambient_light.data, "energy", 1, False)
       },
       "data": {
         "materials": materials,
@@ -368,7 +389,11 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
         "cameras": cameras
       },
       "sceneNodes": scene_nodes
-    }, indent=4, sort_keys=True)
+    }
+    if not json_object["ambientLight"]["color"]: return {"FINISHED"}
+    if not json_object["ambientLight"]["energy"]: return {"FINISHED"}
+
+    json_string = json.dumps(json_object, indent=4, sort_keys=True)
 
     material_names_in_order = list(materials.keys())
     mesh_names_in_order = list(meshes.keys())
@@ -423,6 +448,10 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
           write_float32(keyframe["startsOnFrame"])
           write_uint8(1 if keyframe["type"] == "linear" else 0)
           write_float32(keyframe["withValue"])
+
+    for channel in json_object["ambientLight"]["color"]:
+      write_number_animation(channel)
+    write_number_animation(json_object["ambientLight"]["energy"])
 
     write_uint16(len(material_names_in_order))
     for material_name in material_names_in_order:
