@@ -15,7 +15,7 @@ If there are zero keyframes:
 - A uint8, where 1 represents true, and 0 represents false.
 
 Otherwise, for each keyframe, in frame order:
-- A uint16 specifying which frame the keyframe falls on.
+- A float32 specifying which frame the keyframe falls on.
 - A uint8, where 1 represents true, and 0 represents false.
 
 ### Number
@@ -26,7 +26,7 @@ If there are zero keyframes:
 - A float32 specifying the constant value to use.
 
 Otherwise, for each keyframe, in frame order:
-- A uint16 specifying which frame the keyframe falls on.
+- A float32 specifying which frame the keyframe falls on.
 - A float32 specifying the value of the keyframe.
 
 ## Scene
