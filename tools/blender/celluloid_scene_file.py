@@ -99,6 +99,7 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       read_animation(material["diffuseIntensity"], created, "diffuse_intensity", False)
       read_animation(material["emit"], created, "emit", False)
       read_animation(material["useShadeless"], created, "use_shadeless", True)
+      read_animation(material["useShadows"], created, "use_shadows", True)
       read_animation(material["useCastShadows"], created, "use_cast_shadows", True)
       read_animation(material["useCastShadowsOnly"], created, "use_cast_shadows_only", True)
       initialize_material(created)
@@ -246,6 +247,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
         "diffuseIntensity": write_animation(material, material, "diffuse_intensity", 1, False),
         "emit": write_animation(material, material, "emit", 1, False),
         "useShadeless": write_animation(material, material, "use_shadeless", 1, True),
+        "useShadows": write_animation(material, material, "use_shadows", 1, True),
         "useCastShadows": write_animation(material, material, "use_cast_shadows", 1, True),
         "useCastShadowsOnly": write_animation(material, material, "use_cast_shadows_only", 1, True)
       }
@@ -254,6 +256,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
       if not materials[material_name]["diffuseIntensity"]: return {"FINISHED"}
       if not materials[material_name]["emit"]: return {"FINISHED"}
       if not materials[material_name]["useShadeless"]: return {"FINISHED"}
+      if not materials[material_name]["useShadows"]: return {"FINISHED"}
       if not materials[material_name]["useCastShadows"]: return {"FINISHED"}
       if not materials[material_name]["useCastShadowsOnly"]: return {"FINISHED"}
 
