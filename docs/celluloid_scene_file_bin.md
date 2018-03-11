@@ -27,7 +27,15 @@ If there are zero keyframes:
 
 Otherwise, for each keyframe, in frame order:
 - A float32 specifying which frame the keyframe falls on.
-- A float32 specifying the value of the keyframe.
+- A uint8 specifying the type of keyframe.
+
+#### 0 - Constant
+
+- A float32 specifying the value throughout the keyframe.
+
+#### 1 - Linear
+
+- A float32 specifying the value at the start of the keyframe.
 
 ## Scene
 
