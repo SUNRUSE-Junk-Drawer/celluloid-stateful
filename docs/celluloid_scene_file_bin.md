@@ -39,7 +39,7 @@ Otherwise, for each keyframe, in frame order:
 
 ## Scene
 
-- A uint16 specifying how many material data object there are.
+- A uint16 specifying how many material data objects there are.
 
 For each material data object:
 - A UTF-8, zero-terminated string specifying its name.
