@@ -203,8 +203,8 @@ Describes a "polygon soup".
 
 ```json
 {
-	"clip_start": "any number animation",
-	"clip_end": "any number animation",
+	"clipStart": "any number animation",
+	"clipEnd": "any number animation",
 	"lens": "any number animation"
 }
 ```
