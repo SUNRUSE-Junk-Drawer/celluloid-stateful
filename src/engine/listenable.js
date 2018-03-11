@@ -8,7 +8,7 @@ export default class Listenable {
   raise() {
     if (this.raising) throw new Error("Listeners cannot be recursively raised")
     this.raising = true
-    for (const callback of this.callbacks) callback()
+    for (const callback of this.callbacks) callback.apply(this, arguments)
     this.raising = false
     while (true) {
       const event = this.eventsWhileRaising.shift()
