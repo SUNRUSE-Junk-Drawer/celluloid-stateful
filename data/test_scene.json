@@ -86,7 +86,7 @@
                     {
                         "startsOnFrame": 0,
                         "type": "constant",
-                        "withValue": 26.139999389648438
+                        "withValue": 27.799999237060547
                     }
                 ],
                 "energy": [
@@ -101,7 +101,7 @@
                     {
                         "startsOnFrame": 0,
                         "type": "constant",
-                        "withValue": 1.3404128551483154
+                        "withValue": 0.30194205045700073
                     }
                 ]
             }
@@ -4116,21 +4116,21 @@
                         {
                             "startsOnFrame": 0,
                             "type": "constant",
-                            "withValue": 10.759584426879883
+                            "withValue": 50.34522247314453
                         }
                     ],
                     [
                         {
                             "startsOnFrame": 0,
                             "type": "constant",
-                            "withValue": 7.169397830963135
+                            "withValue": 30.751506805419922
                         }
                     ],
                     [
                         {
                             "startsOnFrame": 0,
                             "type": "constant",
-                            "withValue": 16.395427703857422
+                            "withValue": 81.01606750488281
                         }
                     ]
                 ]
