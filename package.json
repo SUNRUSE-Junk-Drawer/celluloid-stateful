@@ -7,6 +7,6 @@
     "electron": "^1.8.3"
   },
   "scripts": {
-    "start": "electron -r babel-register ./src/development_host/index.js"
+    "start": "npm install && electron -r babel-register ./src/development_host/index.js"
   }
 }
