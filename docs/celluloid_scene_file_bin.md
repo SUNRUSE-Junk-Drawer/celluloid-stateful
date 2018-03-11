@@ -84,6 +84,7 @@ For each camera data object:
 - A uint16 specifying how many scene nodes there are.
 
 For each scene node, pre-sorted so that parents precede their children:
+- A UTF-8, zero-terminated string specifying its name.
 - A uint8 specifying the type of scene node.
 
 ## Scene Node
