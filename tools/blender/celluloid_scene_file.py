@@ -3,11 +3,11 @@ bl_info = {
   "category": "Import-Export"
 }
 
-import bpy, bpy_extras, json, bmesh, struct
+import bpy, bpy_extras, json, bmesh, struct, math
 
 def initialize_material(material):
   material.diffuse_shader = "TOON"
-  material.diffuse_toon_size = 1
+  material.diffuse_toon_size = math.pi
   material.diffuse_toon_smooth = 0
   material.specular_intensity = 0
 
