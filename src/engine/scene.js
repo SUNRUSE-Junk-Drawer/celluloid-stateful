@@ -7,12 +7,12 @@ import { parseSceneNode } from "./scene_node"
 import Disposable from "./disposable"
 
 export class Scene extends Disposable {
-  constructor(ambientLightColor, ambientLightEnergy, data, sceneNodes) {
+  constructor(ambientLightColor, ambientLightEnergy) {
     super()
     this.ambientLightColor = ambientLightColor
     this.ambientLightEnergy = ambientLightEnergy
-    this.data = data
-    this.sceneNodes = sceneNodes
+    this.data = {}
+    this.sceneNodes = {}
   }
 
   performDisposal() {
@@ -23,50 +23,40 @@ export class Scene extends Disposable {
 }
 
 export function parseScene(fileParser) {
-  const ambientLightColor = [
+  const scene = new Scene([
     parseNumberAnimation(fileParser),
     parseNumberAnimation(fileParser),
     parseNumberAnimation(fileParser)
-  ]
-  const ambientLightEnergy = parseNumberAnimation(fileParser)
+  ], parseNumberAnimation(fileParser))
 
   const numberOfMaterials = fileParser.uint16()
   const orderedMaterials = []
-  const materials = {}
   while (orderedMaterials.length < numberOfMaterials) {
-    const material = parseMaterial(fileParser)
+    const material = parseMaterial(scene, fileParser)
     orderedMaterials.push(material)
-    materials[material.name] = material
   }
 
   const numberOfMeshes = fileParser.uint16()
   const orderedMeshes = []
-  const meshes = {}
   while (orderedMeshes.length < numberOfMeshes) {
-    const mesh = parseMesh(fileParser, orderedMaterials)
+    const mesh = parseMesh(scene, fileParser, orderedMaterials)
     orderedMeshes.push(mesh)
-    meshes[mesh.name] = mesh
   }
 
   const numberOfLamps = fileParser.uint16()
   const orderedLamps = []
-  const lamps = {}
   while (orderedLamps.length < numberOfLamps) {
-    const lamp = parseLamp(fileParser)
+    const lamp = parseLamp(scene, fileParser)
     orderedLamps.push(lamp)
-    lamps[lamp.name] = lamp
   }
 
   const numberOfCameras = fileParser.uint16()
   const orderedCameras = []
-  const cameras = {}
   while (orderedCameras.length < numberOfCameras) {
-    const camera = parseCamera(fileParser)
+    const camera = parseCamera(scene, fileParser)
     orderedCameras.push(camera)
-    cameras[camera.name] = camera
   }
 
-  const data = { meshes, lamps, cameras }
   const orderedData = {
     meshes: orderedMeshes,
     lamps: orderedLamps,
@@ -75,12 +65,10 @@ export function parseScene(fileParser) {
 
   const numberOfSceneNodes = fileParser.uint16()
   const orderedSceneNodes = []
-  const sceneNodes = {}
   while (orderedSceneNodes.length < numberOfSceneNodes) {
-    const sceneNode = parseSceneNode(fileParser, orderedSceneNodes, orderedData)
+    const sceneNode = parseSceneNode(scene, fileParser, orderedSceneNodes, orderedData)
     orderedSceneNodes.push(sceneNode)
-    sceneNodes[sceneNode.name] = sceneNode
   }
 
-  return new Scene(ambientLightColor, ambientLightEnergy, data, sceneNodes)
+  return scene
 }

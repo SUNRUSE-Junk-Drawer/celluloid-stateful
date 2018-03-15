@@ -1,11 +1,11 @@
 import { createFileHandle } from "./filesystem"
 import FileParser from "./file_parser"
 import { parseScene } from "./scene"
-import Disposable from "./disposable"
+import SceneData from "./scene_data"
 
-export class SubScene extends Disposable {
-  constructor(path) {
-    super()
+export class SubScene extends SceneData {
+  constructor(scene, name, path) {
+    super(scene, name)
     this.path = path
     this.scene = null
     this.fileHandle = createFileHandle(path, data => {

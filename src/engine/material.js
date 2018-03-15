@@ -1,11 +1,10 @@
 import { parseNumberAnimation } from "./number_animation"
 import { parseBooleanAnimation } from "./boolean_animation"
-import Disposable from "./disposable"
+import SceneData from "./scene_data"
 
-export class Material extends Disposable {
-  constructor(name, diffuseColor, diffuseIntensity, emit, useShadeless, useShadows, useCastShadows, useCastShadowsOnly) {
-    super()
-    this.name = name
+export class Material extends SceneData {
+  constructor(scene, name, diffuseColor, diffuseIntensity, emit, useShadeless, useShadows, useCastShadows, useCastShadowsOnly) {
+    super(scene, name)
     this.diffuseColor = diffuseColor
     this.diffuseIntensity = diffuseIntensity
     this.emit = emit
@@ -18,8 +17,9 @@ export class Material extends Disposable {
   performDisposal() { }
 }
 
-export function parseMaterial(fileParser) {
+export function parseMaterial(scene, fileParser) {
   return new Material(
+    scene,
     fileParser.utf8(),
     [
       parseNumberAnimation(fileParser),

@@ -2,7 +2,9 @@ import { parseNumberAnimation } from "./number_animation"
 import { parseBooleanAnimation } from "./boolean_animation"
 
 export class SceneNode {
-  constructor(name, parent, translation, rotation, scale, hide, data) {
+  constructor(scene, name, parent, translation, rotation, scale, hide, data) {
+    if (scene.disposed) throw new Error("Cannot add SceneNodes to a disposed Scene")
+    this.scene = scene
     this.name = name
     this.parent = parent
     this.translation = translation
@@ -10,10 +12,11 @@ export class SceneNode {
     this.scale = scale
     this.hide = hide
     this.data = data
+    scene.sceneNodes[name] = this
   }
 }
 
-export function parseSceneNode(fileParser, orderedSceneNodes, orderedData) {
+export function parseSceneNode(scene, fileParser, orderedSceneNodes, orderedData) {
   const name = fileParser.utf8()
   const type = fileParser.uint8()
 
@@ -53,5 +56,5 @@ export function parseSceneNode(fileParser, orderedSceneNodes, orderedData) {
       break
   }
 
-  return new SceneNode(name, parent, translation, rotation, scale, hide, data)
+  return new SceneNode(scene, name, parent, translation, rotation, scale, hide, data)
 }

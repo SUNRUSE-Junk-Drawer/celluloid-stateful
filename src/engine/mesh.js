@@ -1,9 +1,8 @@
-import Disposable from "./disposable"
+import SceneData from "./scene_data"
 
-export class Mesh extends Disposable {
-  constructor(name, locations, meshMaterials) {
-    super()
-    this.name = name
+export class Mesh extends SceneData {
+  constructor(scene, name, locations, meshMaterials) {
+    super(scene, name)
     this.locations = locations
     this.meshMaterials = meshMaterials
   }
@@ -18,7 +17,7 @@ export class MeshMaterial {
   }
 }
 
-export function parseMesh(fileParser, orderedMaterials) {
+export function parseMesh(scene, fileParser, orderedMaterials) {
   const name = fileParser.utf8()
   const numberOfLocations = fileParser.uint16()
   const locations = fileParser.float32Array(numberOfLocations * 3)
@@ -30,5 +29,5 @@ export function parseMesh(fileParser, orderedMaterials) {
       fileParser.uint16Array(fileParser.uint16() * 3)
     ))
   }
-  return new Mesh(name, locations, meshMaterials)
+  return new Mesh(scene, name, locations, meshMaterials)
 }
