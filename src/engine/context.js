@@ -1,5 +1,6 @@
 const exported = {
   canvas: null,
+  gl: null,
   tickProgress: 0
 }
 export default exported
