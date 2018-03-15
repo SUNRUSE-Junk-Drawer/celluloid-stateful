@@ -5,7 +5,9 @@ const exported = {
   canvas: null,
   gl: null,
   glNonce: 0,
-  tickProgress: 0
+  tickProgress: 0,
+  width: 0,
+  height: 0
 }
 export default exported
 
@@ -63,6 +65,8 @@ addEventListener("load", () => {
       }
     }
 
+    canvas.width = exported.width = Math.floor(canvas.clientWidth * (window.devicePixelRatio || 1))
+    canvas.height = exported.height = Math.floor(canvas.clientHeight * (window.devicePixelRatio || 1))
     render()
 
     animationFrame = requestAnimationFrame(onAnimationFrame)
