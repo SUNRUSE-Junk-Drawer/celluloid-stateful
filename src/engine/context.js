@@ -1,5 +1,6 @@
 const exported = {
-  canvas: null
+  canvas: null,
+  tickProgress: 0
 }
 export default exported
 
@@ -29,8 +30,20 @@ addEventListener("load", () => {
   exported.gl = gl
 
   animationFrame = requestAnimationFrame(onAnimationFrame)
-  function onAnimationFrame() {
+  let lastTimestamp = null
+  function onAnimationFrame(timestamp) {
     animationFrame = null
+
+    if (lastTimestamp === null) {
+      lastTimestamp = timestamp
+    } else {
+      exported.tickProgress += Math.min(5, (timestamp - lastTimestamp) * 60 / 1000)
+      lastTimestamp = timestamp
+      while (exported.tickProgress >= 1) {
+        exported.tickProgress -= 1
+      }
+    }
+
     animationFrame = requestAnimationFrame(onAnimationFrame)
   }
 
