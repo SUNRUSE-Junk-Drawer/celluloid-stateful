@@ -1,9 +1,14 @@
-export class Mesh {
+import Disposable from "./disposable"
+
+export class Mesh extends Disposable {
   constructor(name, locations, meshMaterials) {
+    super()
     this.name = name
     this.locations = locations
     this.meshMaterials = meshMaterials
   }
+
+  performDisposal() { }
 }
 
 export class MeshMaterial {
