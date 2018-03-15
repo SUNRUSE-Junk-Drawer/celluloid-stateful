@@ -1,6 +1,7 @@
 import onFileChange from "./on_file_change"
 import { readFile } from "fs"
 import { join } from "path"
+import Disposable from "./disposable"
 
 const files = {}
 
@@ -52,16 +53,14 @@ class File {
   }
 }
 
-class Handle {
+class Handle extends Disposable {
   constructor(file, callback) {
+    super()
     this.file = file
     this.callback = callback
-    this.released = false
   }
 
-  release() {
-    if (this.released) throw new Error("Cannot release a Handle more than once")
-    this.released = true
+  performDisposal() {
     this.file.removeHandle(this)
   }
 }
