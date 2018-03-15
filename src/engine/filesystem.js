@@ -1,4 +1,4 @@
-import { watch } from "chokidar"
+import onFileChange from "./on_file_change"
 import { readFile } from "fs"
 import { join } from "path"
 
@@ -9,10 +9,7 @@ function tryFindFile(path) {
   return files[path]
 }
 
-const watcher = watch("data", {
-  persistent: true,
-  ignoreInitial: true
-}).on("change", path => {
+onFileChange.listen(path => {
   const file = tryFindFile(path)
   if (!file) return
   file.load()
