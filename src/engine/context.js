@@ -1,6 +1,7 @@
 const exported = {
   canvas: null,
   gl: null,
+  glNonce: 0,
   tickProgress: 0
 }
 export default exported
@@ -17,6 +18,19 @@ addEventListener("load", () => {
   exported.canvas = canvas
 
   let animationFrame = null
+
+  canvas.addEventListener("webglcontextlost", event => {
+    if (animationFrame !== null) {
+      cancelAnimationFrame(animationFrame)
+      animationFrame = null
+    }
+    event.preventDefault()
+  }, true)
+
+  canvas.addEventListener("webglcontextrestored", () => {
+    exported.glNonce++
+    animationFrame = requestAnimationFrame(onAnimationFrame)
+  })
 
   const attributes = {
     alpha: false,
