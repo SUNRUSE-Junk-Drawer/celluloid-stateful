@@ -14,5 +14,17 @@ addEventListener("load", () => {
   document.body.appendChild(canvas)
   exported.canvas = canvas
 
+  const attributes = {
+    alpha: false,
+    depth: true,
+    stencil: false,
+    antialias: false, /* TODO: This should be configurable. */
+    powerPreference: "high-performance"
+  }
+
+  const gl = canvas.getContext("webgl", attributes) || canvas.getContext("experimental-webgl", attributes)
+  if (!gl) throw new Error("Failed to open a WebGL context")
+  exported.gl = gl
+
   canvas.style.visibility = "visible"
 })
