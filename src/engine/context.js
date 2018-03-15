@@ -1,3 +1,6 @@
+import render from "./render"
+import tick from "./tick"
+
 const exported = {
   canvas: null,
   gl: null,
@@ -55,9 +58,12 @@ addEventListener("load", () => {
       exported.tickProgress += Math.min(5, (timestamp - lastTimestamp) * 60 / 1000)
       lastTimestamp = timestamp
       while (exported.tickProgress >= 1) {
+        tick()
         exported.tickProgress -= 1
       }
     }
+
+    render()
 
     animationFrame = requestAnimationFrame(onAnimationFrame)
   }
