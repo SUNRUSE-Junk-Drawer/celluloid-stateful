@@ -14,6 +14,8 @@ addEventListener("load", () => {
   document.body.appendChild(canvas)
   exported.canvas = canvas
 
+  let animationFrame = null
+
   const attributes = {
     alpha: false,
     depth: true,
@@ -25,6 +27,12 @@ addEventListener("load", () => {
   const gl = canvas.getContext("webgl", attributes) || canvas.getContext("experimental-webgl", attributes)
   if (!gl) throw new Error("Failed to open a WebGL context")
   exported.gl = gl
+
+  animationFrame = requestAnimationFrame(onAnimationFrame)
+  function onAnimationFrame() {
+    animationFrame = null
+    animationFrame = requestAnimationFrame(onAnimationFrame)
+  }
 
   canvas.style.visibility = "visible"
 })
