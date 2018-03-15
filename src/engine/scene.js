@@ -4,13 +4,21 @@ import { parseMesh } from "./mesh"
 import { parseLamp } from "./lamp"
 import { parseCamera } from "./camera"
 import { parseSceneNode } from "./scene_node"
+import Disposable from "./disposable"
 
-export class Scene {
+export class Scene extends Disposable {
   constructor(ambientLightColor, ambientLightEnergy, data, sceneNodes) {
+    super()
     this.ambientLightColor = ambientLightColor
     this.ambientLightEnergy = ambientLightEnergy
     this.data = data
     this.sceneNodes = sceneNodes
+  }
+
+  performDisposal() {
+    for (const dataName in this.data) {
+      this.data[dataName].dispose()
+    }
   }
 }
 
