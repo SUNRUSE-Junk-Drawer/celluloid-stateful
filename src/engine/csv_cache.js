@@ -9,7 +9,7 @@ class CsvCache extends Cache {
   transform(key, then) {
     readFile(join("data", key), readFileOptions, (err, data) => {
       if (err) {
-        console.error(`Failed to read "${key}" as text for CSV`)
+        console.error(`Failed to read "${key}" as text for CSV`, err)
         then(null)
       } else {
         let text = ""
