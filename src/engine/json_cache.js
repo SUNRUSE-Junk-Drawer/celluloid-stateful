@@ -9,12 +9,15 @@ class JsonCache extends Cache {
   transform(key, then) {
     readFile(join("data", key), readFileOptions, (err, data) => {
       if (err) {
+        console.error(`Failed to read "${key}" as text for JSON`, err)
         then(null)
       } else {
         let value = null
         try {
           value = JSON.parse(data)
-        } catch (e) { }
+        } catch (e) {
+          console.error(`Failed to parse "${key}" as JSON`, e)
+        }
         then(value)
       }
     })
