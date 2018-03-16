@@ -57,6 +57,7 @@ class Item extends Disposable {
   }
 
   changed() {
+    if (this.data instanceof Disposable) this.data.dispose()
     this.data = undefined
     this.nonce++
     const nonceCopy = this.nonce
@@ -69,6 +70,7 @@ class Item extends Disposable {
 
   performDisposal() {
     while (this.handles.length) this.handles[0].dispose()
+    if (this.data instanceof Disposable) this.data.dispose()
     this.data = undefined
     this.nonce++
     this.cache.removeItem(this)
