@@ -6,6 +6,7 @@ export default class Disposable {
   dispose() {
     this.checkNotDisposed()
     this.disposed = true
+    this.performDisposal()
   }
 
   checkNotDisposed() {
