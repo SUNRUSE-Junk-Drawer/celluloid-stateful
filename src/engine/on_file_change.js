@@ -3,9 +3,10 @@ import Listenable from "./listenable"
 
 const listenable = new Listenable()
 
-const watcher = watch("data", {
+const watcher = watch(".", {
   persistent: true,
-  ignoreInitial: true
+  ignoreInitial: true,
+  cwd: "data"
 }).on("change", path => listenable.raise(path))
 
 export default listenable
