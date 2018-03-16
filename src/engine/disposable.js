@@ -4,8 +4,12 @@ export default class Disposable {
   }
 
   dispose() {
-    if (this.disposed) throw new Error("Cannot dispose of a resource more than once")
+    this.checkNotDisposed()
     this.disposed = true
+  }
+
+  checkNotDisposed() {
+    if (this.disposed) throw new Error("Cannot use a disposed resource")
   }
 
   performDisposal() {

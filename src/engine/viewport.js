@@ -20,7 +20,8 @@ export default class Viewport extends Disposable {
 
   render() {
     const camera = this.cameraGetter()
-    if (!camera || camera.disposed) return
+    if (!camera) return
+    camera.checkNotDisposed()
     const gl = context.gl
     const x = (this.left + 1) * context.width * 0.5
     const y = (this.bottom + 1) * context.height * 0.5

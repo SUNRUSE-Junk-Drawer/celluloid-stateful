@@ -3,7 +3,7 @@ import { parseBooleanAnimation } from "./boolean_animation"
 
 export class SceneNode {
   constructor(scene, name, parent, translation, rotation, scale, hide, data) {
-    if (scene.disposed) throw new Error("Cannot add SceneNodes to a disposed Scene")
+    scene.checkNotDisposed()
     this.scene = scene
     this.name = name
     this.parent = parent
