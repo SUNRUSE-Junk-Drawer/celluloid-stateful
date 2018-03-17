@@ -1,4 +1,3 @@
-import { parseNumberAnimation } from "./../../animation/number_animation"
 import Data from "./data"
 import DataInstance from "./data_instance"
 
