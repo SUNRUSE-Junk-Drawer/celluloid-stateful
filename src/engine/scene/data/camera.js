@@ -20,6 +20,13 @@ export default class Camera extends Data {
 class CameraInstance extends DataInstance {
   constructor(sceneInstance, data) {
     super(sceneInstance, data)
+    this.setFrame(0)
+  }
+
+  performSetFrame(frame) {
+    this.clipStart = this.data.clipStart.sample(frame)
+    this.clipEnd = this.data.clipEnd.sample(frame)
+    this.lens = this.data.lens.sample(frame)
   }
 
   performDisposal() { }

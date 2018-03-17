@@ -38,6 +38,10 @@ class SceneInstance extends Disposable {
     })
   }
 
+  setFrame(frame) {
+    for (const name in this.data) this.data[name].setFrame(frame)
+  }
+
   dropCurrentInstance() {
     if (this.dataInstances) {
       for (const name in this.dataInstances) this.dataInstances[name].dispose()

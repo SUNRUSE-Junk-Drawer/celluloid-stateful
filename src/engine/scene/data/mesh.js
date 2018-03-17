@@ -23,7 +23,11 @@ export default class Mesh extends Data {
 class MeshInstance extends DataInstance {
   constructor(sceneInstance, data) {
     super(sceneInstance, data)
+    this.diffuseColors = new Float32Array(data.meshMaterials.length * 3)
+    this.emits = new Float32Array(data.meshMaterials.length)
   }
+
+  performSetFrame(frame) { }
 
   performDisposal() { }
 }
