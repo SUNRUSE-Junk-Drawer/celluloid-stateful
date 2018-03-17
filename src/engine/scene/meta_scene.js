@@ -9,6 +9,7 @@ export default class MetaScene extends Disposable {
   }
 
   createSceneInstance(path) {
+    this.checkNotDisposed()
     const sceneInstance = new SceneInstance(this, path)
     this.sceneInstances.push(sceneInstance)
     return sceneInstance
@@ -39,6 +40,7 @@ class SceneInstance extends Disposable {
   }
 
   setFrame(frame) {
+    this.checkNotDisposed()
     for (const name in this.data) this.data[name].setFrame(frame)
   }
 
