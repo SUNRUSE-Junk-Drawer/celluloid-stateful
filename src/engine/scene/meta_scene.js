@@ -1,4 +1,4 @@
-import Disposable from "./disposable"
+import Disposable from "./../disposable"
 import sceneCache from "./scene_cache"
 
 export default class MetaScene extends Disposable {

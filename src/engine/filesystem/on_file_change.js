@@ -1,5 +1,5 @@
 import { watch } from "chokidar"
-import Listenable from "./listenable"
+import Listenable from "./../listenable"
 
 const listenable = new Listenable()
 

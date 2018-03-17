@@ -1,5 +1,5 @@
-import { parseNumberAnimation } from "./number_animation"
-import { parseBooleanAnimation } from "./boolean_animation"
+import { parseNumberAnimation } from "./../animation/number_animation"
+import { parseBooleanAnimation } from "./../animation/boolean_animation"
 import SceneData from "./scene_data"
 
 export class Material extends SceneData {

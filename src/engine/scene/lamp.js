@@ -1,4 +1,4 @@
-import { parseNumberAnimation } from "./number_animation"
+import { parseNumberAnimation } from "./../animation/number_animation"
 import SceneData from "./scene_data"
 
 export class Lamp extends SceneData {

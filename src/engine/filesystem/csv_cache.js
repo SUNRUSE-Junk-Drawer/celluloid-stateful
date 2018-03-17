@@ -1,4 +1,4 @@
-import Cache from "./cache"
+import Cache from "./../cache"
 import { readFile } from "fs"
 import { join } from "path"
 import onFileChange from "./on_file_change"

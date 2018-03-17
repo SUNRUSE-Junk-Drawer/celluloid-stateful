@@ -1,10 +1,10 @@
-import { parseNumberAnimation } from "./number_animation"
+import { parseNumberAnimation } from "./../animation/number_animation"
 import { parseMaterial } from "./material"
 import { parseMesh } from "./mesh"
 import { parseLamp } from "./lamp"
 import { parseCamera } from "./camera"
 import { parseSceneNode } from "./scene_node"
-import Disposable from "./disposable"
+import Disposable from "./../disposable"
 
 export class Scene extends Disposable {
   constructor(ambientLightColor, ambientLightEnergy) {

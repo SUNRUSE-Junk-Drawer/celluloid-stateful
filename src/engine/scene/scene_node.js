@@ -1,5 +1,5 @@
-import { parseNumberAnimation } from "./number_animation"
-import { parseBooleanAnimation } from "./boolean_animation"
+import { parseNumberAnimation } from "./../animation/number_animation"
+import { parseBooleanAnimation } from "./../animation/boolean_animation"
 
 export class SceneNode {
   constructor(parent, name, translation, rotation, scale, hide, data) {

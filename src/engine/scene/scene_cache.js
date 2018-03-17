@@ -1,9 +1,9 @@
-import Cache from "./cache"
+import Cache from "./../cache"
 import { readFile } from "fs"
 import { join } from "path"
-import onFileChange from "./on_file_change"
+import onFileChange from "./../filesystem/on_file_change"
 import { parseScene } from "./scene"
-import FileParser from "./file_parser"
+import FileParser from "./../filesystem/file_parser"
 
 class SceneCache extends Cache {
   transform(key, then) {
