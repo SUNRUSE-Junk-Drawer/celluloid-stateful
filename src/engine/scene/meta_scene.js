@@ -40,7 +40,8 @@ class SceneInstance extends Disposable {
       for (const name in scene.data) scene.data[name].createInstance(this)
 
       this.nodeInstances = {}
-      for (const name in scene.nodes) new NodeInstance(this, scene.nodes[name])
+      this.rootNodeInstances = {}
+      for (const name in scene.nodes) new NodeInstance(this, this, scene.nodes[name])
     })
     this.viewports = []
   }
@@ -73,20 +74,21 @@ class SceneInstance extends Disposable {
 }
 
 class NodeInstance {
-  constructor(parent, node) {
+  constructor(sceneInstance, parent, node) {
     this.parent = parent
     this.node = node
 
     if (node.data) {
-      let sceneInstance = this.parent
-      while (sceneInstance instanceof NodeInstance) sceneInstance = sceneInstance.parent
       this.dataInstance = sceneInstance.dataInstances[node.data.name]
     } else {
       this.dataInstance = null
     }
 
     this.nodeInstances = {}
-    for (const name in node.nodes) new NodeInstance(this, node.nodes[name])
-    parent.nodeInstances[node.name] = this
+    for (const name in node.nodes) new NodeInstance(sceneInstance, this, node.nodes[name])
+
+    sceneInstance.nodeInstances[node.name] = this
+    const parentCollection = parent == sceneInstance ? parent.rootNodeInstances : parent.nodeInstances
+    parentCollection[node.name] = this
   }
 }
