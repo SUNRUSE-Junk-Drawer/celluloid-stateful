@@ -2,6 +2,15 @@ export class BooleanAnimation {
   constructor(keyframes) {
     this.keyframes = keyframes
   }
+
+  sample(frame) {
+    const firstKeyframe = this.keyframes[0]
+    if (firstKeyframe.startsOnFrame > frame) return firstKeyframe.withValue
+    for (let i = 0; i < this.keyframes.length; i++) {
+      const keyframe = this.keyframes[i]
+      if (keyframe.startsOnFrame <= frame) return keyframe.withValue
+    }
+  }
 }
 
 export class BooleanKeyframe {
@@ -14,6 +23,10 @@ export class BooleanKeyframe {
 export class ConstantBooleanAnimation {
   constructor(withValue) {
     this.withValue = withValue
+  }
+
+  sample(frame) {
+    return this.withValue
   }
 }
 
