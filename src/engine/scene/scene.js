@@ -3,7 +3,7 @@ import { parseMaterial } from "./material"
 import { parseMesh } from "./mesh"
 import { parseLamp } from "./lamp"
 import { parseCamera } from "./camera"
-import { parseSceneNode } from "./scene_node"
+import { parseNode } from "./node"
 import Disposable from "./../disposable"
 
 export class Scene extends Disposable {
@@ -12,7 +12,7 @@ export class Scene extends Disposable {
     this.ambientLightColor = ambientLightColor
     this.ambientLightEnergy = ambientLightEnergy
     this.data = {}
-    this.sceneNodes = {}
+    this.nodes = {}
   }
 
   performDisposal() {

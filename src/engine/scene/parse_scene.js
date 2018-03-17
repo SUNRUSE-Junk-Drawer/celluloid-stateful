@@ -2,7 +2,7 @@ import { Camera } from "./camera"
 import { Lamp } from "./lamp"
 import { Material } from "./material"
 import { Mesh, MeshMaterial } from "./mesh"
-import { SceneNode } from "./scene_node"
+import { Node } from "./node"
 import { Scene } from "./scene"
 import { parseNumberAnimation } from "./../animation/number_animation"
 import { parseBooleanAnimation } from "./../animation/boolean_animation"
@@ -87,14 +87,14 @@ export default fileParser => {
     cameras: orderedCameras
   }
 
-  const numberOfSceneNodes = fileParser.uint16()
-  const orderedSceneNodes = []
-  while (orderedSceneNodes.length < numberOfSceneNodes) {
+  const numberOfNodes = fileParser.uint16()
+  const orderedNodes = []
+  while (orderedNodes.length < numberOfNodes) {
     const name = fileParser.utf8()
     const type = fileParser.uint8()
 
     const parentId = fileParser.uint16()
-    const parent = parentId == 65535 ? scene : orderedSceneNodes[parentId]
+    const parent = parentId == 65535 ? scene : orderedNodes[parentId]
 
     const translation = [
       parseNumberAnimation(fileParser),
@@ -129,7 +129,7 @@ export default fileParser => {
         break
     }
 
-    orderedSceneNodes.push(new SceneNode(parent, name, translation, rotation, scale, hide, data))
+    orderedNodes.push(new Node(parent, name, translation, rotation, scale, hide, data))
   }
 
   return scene
