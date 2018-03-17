@@ -5,7 +5,8 @@
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
     "chokidar": "^2.0.2",
-    "electron": "^1.8.3"
+    "electron": "^1.8.3",
+    "gl-matrix": "^2.4.0"
   },
   "scripts": {
     "start": "npm install && electron -r babel-register ./src/development_host/index.js"
