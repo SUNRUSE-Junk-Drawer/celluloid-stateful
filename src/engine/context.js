@@ -1,5 +1,4 @@
 import mainLoop from "./main_loop"
-import { all } from "./viewport"
 
 const exported = {
   canvas: null,
@@ -65,7 +64,6 @@ addEventListener("load", () => {
     canvas.height = exported.height = Math.floor(canvas.clientHeight * (window.devicePixelRatio || 1))
 
     mainLoop(deltaSeconds)
-    all.forEach(viewport => viewport.render())
 
     animationFrame = requestAnimationFrame(onAnimationFrame)
   }

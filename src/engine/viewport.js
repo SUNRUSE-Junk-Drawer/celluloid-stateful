@@ -1,26 +1,32 @@
 import context from "./context"
 import Disposable from "./disposable"
 
-export const all = []
-
 export default class Viewport extends Disposable {
-  constructor(cameraGetter, left, bottom, right, top) {
+  constructor(sceneInstance, cameraNodeName, left, bottom, right, top) {
     super()
-    this.cameraGetter = cameraGetter
+
+    sceneInstance.checkNotDisposed()
+
+    this.sceneInstance = sceneInstance
+    this.cameraNodeName = cameraNodeName
     this.left = left
     this.bottom = bottom
     this.right = right
     this.top = top
-    all.push(this)
+
+    this.sceneInstance.viewports.push(this)
   }
 
   performDisposal() {
-    all.splice(index, 1)
+    this.sceneInstance.viewports.splice(this.sceneInstance.viewports.indexOf(this), 1)
   }
 
   render() {
-    const camera = this.cameraGetter()
+    if (!this.sceneInstance.nodeInstances) return
+
+    const camera = this.sceneInstance.nodeInstances[this.cameraNodeName]
     if (!camera) return
+
     const gl = context.gl
     const x = (this.left + 1) * context.width * 0.5
     const y = (this.bottom + 1) * context.height * 0.5

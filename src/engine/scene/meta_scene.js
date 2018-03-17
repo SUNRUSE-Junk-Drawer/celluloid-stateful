@@ -15,6 +15,11 @@ export default class MetaScene extends Disposable {
     return sceneInstance
   }
 
+  render() {
+    this.checkNotDisposed()
+    this.sceneInstances.forEach(sceneInstance => sceneInstance.render())
+  }
+
   performDisposal() {
     while (this.sceneInstances.length) this.sceneInstances[0].dispose()
   }
@@ -37,11 +42,17 @@ class SceneInstance extends Disposable {
       this.nodeInstances = {}
       for (const name in scene.nodes) new NodeInstance(this, scene.nodes[name])
     })
+    this.viewports = []
   }
 
   setFrame(frame) {
     this.checkNotDisposed()
     for (const name in this.data) this.data[name].setFrame(frame)
+  }
+
+  render() {
+    this.checkNotDisposed()
+    this.viewports.forEach(viewport => viewport.render())
   }
 
   dropCurrentInstance() {
@@ -57,6 +68,7 @@ class SceneInstance extends Disposable {
     this.dropCurrentInstance()
     this.sceneHandle.dispose()
     this.metaScene.sceneInstances.splice(this.metaScene.sceneInstances.indexOf(this))
+    while (this.viewports.length) this.viewports[0].dispose()
   }
 }
 
