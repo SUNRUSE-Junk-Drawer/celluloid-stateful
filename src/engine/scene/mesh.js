@@ -1,7 +1,7 @@
-import SceneData from "./scene_data"
-import SceneDataInstance from "./scene_data_instance"
+import Data from "./data"
+import DataInstance from "data_instance"
 
-export class Mesh extends SceneData {
+export class Mesh extends Data {
   constructor(scene, name, locations, meshMaterials) {
     super(scene, name)
     this.locations = locations
@@ -23,9 +23,9 @@ export class MeshMaterial {
   }
 }
 
-class MeshInstance extends SceneDataInstance {
-  constructor(sceneInstance, sceneData) {
-    super(sceneInstance, sceneData)
+class MeshInstance extends DataInstance {
+  constructor(sceneInstance, data) {
+    super(sceneInstance, data)
   }
 
   performDisposal() { }

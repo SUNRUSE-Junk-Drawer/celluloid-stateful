@@ -1,6 +1,6 @@
 import Disposable from "./../disposable"
 
-export default class SceneData extends Disposable {
+export default class Data extends Disposable {
   constructor(scene, name) {
     super()
     scene.checkNotDisposed()

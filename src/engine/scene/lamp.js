@@ -1,8 +1,8 @@
 import { parseNumberAnimation } from "./../animation/number_animation"
-import SceneData from "./scene_data"
-import SceneDataInstance from "./scene_data_instance"
+import Data from "./data"
+import DataInstance from "./data_instance"
 
-export class Lamp extends SceneData {
+export class Lamp extends Data {
   constructor(scene, name, color, energy, distance, spotSize, shadowBufferSize) {
     super(scene, name)
     this.color = color
@@ -20,9 +20,9 @@ export class Lamp extends SceneData {
   performDisposal() { }
 }
 
-class LampInstance extends SceneDataInstance {
-  constructor(sceneInstance, sceneData) {
-    super(sceneInstance, sceneData)
+class LampInstance extends DataInstance {
+  constructor(sceneInstance, data) {
+    super(sceneInstance, data)
   }
 
   performDisposal() { }

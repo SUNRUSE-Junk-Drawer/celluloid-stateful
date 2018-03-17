@@ -1,8 +1,8 @@
 import { parseNumberAnimation } from "./../animation/number_animation"
-import SceneData from "./scene_data"
-import SceneDataInstance from "./scene_data_instance"
+import Data from "./data"
+import DataInstance from "./data_instance"
 
-export class Camera extends SceneData {
+export class Camera extends Data {
   constructor(scene, name, clipStart, clipEnd, lens) {
     super(scene, name)
     this.clipStart = clipStart
@@ -18,9 +18,9 @@ export class Camera extends SceneData {
   performDisposal() { }
 }
 
-class CameraInstance extends SceneDataInstance {
-  constructor(sceneInstance, sceneData) {
-    super(sceneInstance, sceneData)
+class CameraInstance extends DataInstance {
+  constructor(sceneInstance, data) {
+    super(sceneInstance, data)
   }
 
   performDisposal() { }

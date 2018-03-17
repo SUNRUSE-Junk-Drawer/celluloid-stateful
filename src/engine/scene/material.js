@@ -1,9 +1,9 @@
 import { parseNumberAnimation } from "./../animation/number_animation"
 import { parseBooleanAnimation } from "./../animation/boolean_animation"
-import SceneData from "./scene_data"
-import SceneDataInstance from "./scene_data_instance"
+import Data from "./data"
+import DataInstance from "./data_instance"
 
-export class Material extends SceneData {
+export class Material extends Data {
   constructor(scene, name, diffuseColor, diffuseIntensity, emit, useShadeless, useShadows, useCastShadows, useCastShadowsOnly) {
     super(scene, name)
     this.diffuseColor = diffuseColor
@@ -23,9 +23,9 @@ export class Material extends SceneData {
   performDisposal() { }
 }
 
-class MaterialInstance extends SceneDataInstance {
-  constructor(sceneInstance, sceneData) {
-    super(sceneInstance, sceneData)
+class MaterialInstance extends DataInstance {
+  constructor(sceneInstance, data) {
+    super(sceneInstance, data)
   }
 
   performDisposal() { }
