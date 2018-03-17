@@ -1,5 +1,5 @@
-import { parseNumberAnimation } from "./../animation/number_animation"
-import { parseBooleanAnimation } from "./../animation/boolean_animation"
+import { parseNumberAnimation } from "./../../animation/number_animation"
+import { parseBooleanAnimation } from "./../../animation/boolean_animation"
 import Data from "./data"
 import DataInstance from "./data_instance"
 

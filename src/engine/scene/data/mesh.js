@@ -1,5 +1,5 @@
 import Data from "./data"
-import DataInstance from "data_instance"
+import DataInstance from "./data_instance"
 
 export class Mesh extends Data {
   constructor(scene, name, locations, meshMaterials) {

@@ -1,4 +1,4 @@
-import Disposable from "./../disposable"
+import Disposable from "./../../disposable"
 
 export default class Data extends Disposable {
   constructor(scene, name) {
