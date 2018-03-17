@@ -1,7 +1,7 @@
 import { Camera } from "./data/camera"
 import { Lamp } from "./data/lamp"
 import { Material } from "./data/material"
-import { Mesh, MeshMaterial } from "./data/mesh"
+import { Mesh } from "./data/mesh"
 import { Node } from "./node"
 import { Scene } from "./scene"
 import { parseNumberAnimation } from "./../animation/number_animation"
@@ -40,15 +40,15 @@ export default fileParser => {
     const name = fileParser.utf8()
     const numberOfLocations = fileParser.uint16()
     const locations = fileParser.float32Array(numberOfLocations * 3)
-    const numberOfMeshMaterials = fileParser.uint8()
-    const meshMaterials = []
-    while (meshMaterials.length < numberOfMeshMaterials) {
-      meshMaterials.push(new MeshMaterial(
+    const mesh = new Mesh(scene, name, locations)
+    let remainingMeshMaterials = fileParser.uint8()
+    while (remainingMeshMaterials--) {
+      mesh.addMaterial(
         orderedMaterials[fileParser.uint16()],
         fileParser.uint16Array(fileParser.uint16() * 3)
-      ))
+      )
     }
-    orderedMeshes.push(new Mesh(scene, name, locations, meshMaterials))
+    orderedMeshes.push(mesh)
   }
 
   const numberOfLamps = fileParser.uint16()

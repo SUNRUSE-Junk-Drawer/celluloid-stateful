@@ -2,10 +2,14 @@ import Data from "./data"
 import DataInstance from "./data_instance"
 
 export class Mesh extends Data {
-  constructor(scene, name, locations, meshMaterials) {
+  constructor(scene, name, locations) {
     super(scene, name)
     this.locations = locations
-    this.meshMaterials = meshMaterials
+    this.meshMaterials = []
+  }
+
+  addMaterial(material, triangles) {
+    this.meshMaterials.push({ material, triangles })
   }
 
   createInstance(sceneInstance) {
@@ -14,13 +18,6 @@ export class Mesh extends Data {
   }
 
   performDisposal() { }
-}
-
-export class MeshMaterial {
-  constructor(material, triangles) {
-    this.material = material
-    this.triangles = triangles
-  }
 }
 
 class MeshInstance extends DataInstance {
