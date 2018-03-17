@@ -1,7 +1,7 @@
 import Data from "./data"
 import DataInstance from "./data_instance"
 
-export class Camera extends Data {
+export default class Camera extends Data {
   constructor(scene, name, clipStart, clipEnd, lens) {
     super(scene, name)
     this.clipStart = clipStart

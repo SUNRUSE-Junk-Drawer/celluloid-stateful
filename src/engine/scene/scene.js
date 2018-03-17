@@ -1,6 +1,6 @@
 import Disposable from "./../disposable"
 
-export class Scene extends Disposable {
+export default class Scene extends Disposable {
   constructor(ambientLightColor, ambientLightEnergy) {
     super()
     this.ambientLightColor = ambientLightColor

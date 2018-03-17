@@ -1,7 +1,7 @@
 import Data from "./data"
 import DataInstance from "./data_instance"
 
-export class Material extends Data {
+export default class Material extends Data {
   constructor(scene, name, diffuseColor, diffuseIntensity, emit, useShadeless, useShadows, useCastShadows, useCastShadowsOnly) {
     super(scene, name)
     this.diffuseColor = diffuseColor

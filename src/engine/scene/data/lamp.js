@@ -1,7 +1,7 @@
 import Data from "./data"
 import DataInstance from "./data_instance"
 
-export class Lamp extends Data {
+export default class Lamp extends Data {
   constructor(scene, name, color, energy, distance, spotSize, shadowBufferSize) {
     super(scene, name)
     this.color = color

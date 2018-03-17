@@ -1,7 +1,7 @@
 import { parseNumberAnimation } from "./../animation/number_animation"
 import { parseBooleanAnimation } from "./../animation/boolean_animation"
 
-export class Node {
+export default class Node {
   constructor(parent, name, translation, rotation, scale, hide, data) {
     this.parent = parent
     this.name = name

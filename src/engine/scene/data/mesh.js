@@ -1,7 +1,7 @@
 import Data from "./data"
 import DataInstance from "./data_instance"
 
-export class Mesh extends Data {
+export default class Mesh extends Data {
   constructor(scene, name, locations) {
     super(scene, name)
     this.locations = locations
