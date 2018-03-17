@@ -2,7 +2,7 @@ import Cache from "./../cache"
 import { readFile } from "fs"
 import { join } from "path"
 import onFileChange from "./../filesystem/on_file_change"
-import { parseScene } from "./scene"
+import parseScene from "./parse_scene"
 import FileParser from "./../filesystem/file_parser"
 
 class SceneCache extends Cache {

@@ -13,19 +13,3 @@ export class Lamp extends SceneData {
 
   performDisposal() { }
 }
-
-export function parseLamp(scene, fileParser) {
-  return new Lamp(
-    scene,
-    fileParser.utf8(),
-    [
-      parseNumberAnimation(fileParser),
-      parseNumberAnimation(fileParser),
-      parseNumberAnimation(fileParser)
-    ],
-    parseNumberAnimation(fileParser),
-    parseNumberAnimation(fileParser),
-    parseNumberAnimation(fileParser),
-    fileParser.uint16()
-  )
-}

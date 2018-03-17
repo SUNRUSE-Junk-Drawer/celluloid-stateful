@@ -16,21 +16,3 @@ export class Material extends SceneData {
 
   performDisposal() { }
 }
-
-export function parseMaterial(scene, fileParser) {
-  return new Material(
-    scene,
-    fileParser.utf8(),
-    [
-      parseNumberAnimation(fileParser),
-      parseNumberAnimation(fileParser),
-      parseNumberAnimation(fileParser)
-    ],
-    parseNumberAnimation(fileParser),
-    parseNumberAnimation(fileParser),
-    parseBooleanAnimation(fileParser),
-    parseBooleanAnimation(fileParser),
-    parseBooleanAnimation(fileParser),
-    parseBooleanAnimation(fileParser)
-  )
-}

@@ -11,13 +11,3 @@ export class Camera extends SceneData {
 
   performDisposal() { }
 }
-
-export function parseCamera(scene, fileParser) {
-  return new Camera(
-    scene,
-    fileParser.utf8(),
-    parseNumberAnimation(fileParser),
-    parseNumberAnimation(fileParser),
-    parseNumberAnimation(fileParser)
-  )
-}
