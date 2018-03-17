@@ -8,4 +8,8 @@ export default class SceneData extends Disposable {
     this.name = name
     scene.data[name] = this
   }
+
+  createInstance() {
+    throw new Error("This is to be implemented by the inheriting class")
+  }
 }
