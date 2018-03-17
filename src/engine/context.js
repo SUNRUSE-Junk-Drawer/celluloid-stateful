@@ -1,11 +1,10 @@
-import render from "./render"
-import tick from "./tick"
+import mainLoop from "./main_loop"
+import { all } from "./viewport"
 
 const exported = {
   canvas: null,
   gl: null,
   glNonce: 0,
-  tickProgress: 0,
   width: 0,
   height: 0
 }
@@ -54,20 +53,19 @@ addEventListener("load", () => {
   function onAnimationFrame(timestamp) {
     animationFrame = null
 
+    let deltaSeconds = 0
     if (lastTimestamp === null) {
       lastTimestamp = timestamp
     } else {
-      exported.tickProgress += Math.min(5, (timestamp - lastTimestamp) * 60 / 1000)
+      deltaSeconds = Math.min(0.25, (timestamp - lastTimestamp) / 1000)
       lastTimestamp = timestamp
-      while (exported.tickProgress >= 1) {
-        tick()
-        exported.tickProgress -= 1
-      }
     }
 
     canvas.width = exported.width = Math.floor(canvas.clientWidth * (window.devicePixelRatio || 1))
     canvas.height = exported.height = Math.floor(canvas.clientHeight * (window.devicePixelRatio || 1))
-    render()
+
+    mainLoop(deltaSeconds)
+    all.forEach(viewport => viewport.render())
 
     animationFrame = requestAnimationFrame(onAnimationFrame)
   }

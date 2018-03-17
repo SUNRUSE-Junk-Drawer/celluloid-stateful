@@ -1,0 +1,1 @@
+export default deltaSeconds => console.log(`Update ${deltaSeconds}`)
