@@ -76,6 +76,15 @@ class NodeInstance {
   constructor(parent, node) {
     this.parent = parent
     this.node = node
+
+    if (node.data) {
+      let sceneInstance = this.parent
+      while (sceneInstance instanceof NodeInstance) sceneInstance = sceneInstance.parent
+      this.dataInstance = sceneInstance.dataInstances[node.data.name]
+    } else {
+      this.dataInstance = null
+    }
+
     this.nodeInstances = {}
     for (const name in node.nodes) new NodeInstance(this, node.nodes[name])
     parent.nodeInstances[node.name] = this
