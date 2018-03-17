@@ -23,20 +23,32 @@ class SceneInstance extends Disposable {
   constructor(metaScene, path) {
     super()
     this.metaScene = metaScene
-    this.nodeInstances = null
+    this.dropCurrentInstance()
     this.sceneHandle = sceneCache.createHandle(path, scene => {
       if (scene == null) {
-        this.nodeInstances = null
+        this.dropCurrentInstance()
         return
       }
+
+      this.dataInstances = {}
+      for (const name in scene.data) scene.data[name].createInstance(this)
 
       this.nodeInstances = {}
       for (const name in scene.nodes) new NodeInstance(this, scene.nodes[name])
     })
   }
 
-  performDisposal() {
+  dropCurrentInstance() {
+    if (this.dataInstances) {
+      for (const name in this.dataInstances) this.dataInstances[name].dispose()
+      this.dataInstances = null
+    }
+
     this.nodeInstances = null
+  }
+
+  performDisposal() {
+    this.dropCurrentInstance()
     this.sceneHandle.dispose()
     this.metaScene.sceneInstances.splice(this.metaScene.sceneInstances.indexOf(this))
   }
