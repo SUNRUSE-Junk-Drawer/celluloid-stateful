@@ -30,6 +30,7 @@ class SceneInstance extends Disposable {
     super()
     this.metaScene = metaScene
     this.dropCurrentInstance()
+    this.frame = 0
     this.sceneHandle = sceneCache.createHandle(path, scene => {
       if (scene == null) {
         this.dropCurrentInstance()
@@ -48,6 +49,7 @@ class SceneInstance extends Disposable {
 
   setFrame(frame) {
     this.checkNotDisposed()
+    this.frame = frame
     for (const name in this.data) this.data[name].setFrame(frame)
   }
 
