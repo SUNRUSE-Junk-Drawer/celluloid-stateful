@@ -27,7 +27,7 @@ class MeshInstance extends DataInstance {
     this.emits = new Float32Array(data.meshMaterials.length)
   }
 
-  performSetFrame(frame) { }
+  setFrame(frame) { }
 
   performDisposal() { }
 }

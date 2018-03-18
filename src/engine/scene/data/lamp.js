@@ -28,7 +28,7 @@ class LampInstance extends DataInstance {
     this.setFrame(0)
   }
 
-  performSetFrame(frame) {
+  setFrame(frame) {
     this.color[0] = this.data.color[0].sample(frame)
     this.color[1] = this.data.color[1].sample(frame)
     this.color[2] = this.data.color[2].sample(frame)

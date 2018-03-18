@@ -29,7 +29,7 @@ class MaterialInstance extends DataInstance {
     this.setFrame(0)
   }
 
-  performSetFrame(frame) {
+  setFrame(frame) {
     this.diffuseColor[0] = this.data.diffuseColor[0].sample(frame)
     this.diffuseColor[1] = this.data.diffuseColor[1].sample(frame)
     this.diffuseColor[2] = this.data.diffuseColor[2].sample(frame)

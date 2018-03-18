@@ -23,7 +23,7 @@ class CameraInstance extends DataInstance {
     this.setFrame(0)
   }
 
-  performSetFrame(frame) {
+  setFrame(frame) {
     this.clipStart = this.data.clipStart.sample(frame)
     this.clipEnd = this.data.clipEnd.sample(frame)
     this.lens = this.data.lens.sample(frame)
