@@ -29,5 +29,7 @@ class CameraInstance extends DataInstance {
     this.lens = this.data.lens.sample(frame)
   }
 
+  renderGeometry(projectionMatrix) { }
+
   performDisposal() { }
 }

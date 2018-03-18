@@ -38,5 +38,7 @@ class LampInstance extends DataInstance {
     this.shadowBufferClipEnd = this.data.shadowBufferClipEnd.sample(frame)
   }
 
+  renderGeometry(projectionMatrix) { }
+
   performDisposal() { }
 }

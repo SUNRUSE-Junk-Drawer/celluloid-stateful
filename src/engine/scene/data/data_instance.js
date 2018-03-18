@@ -16,4 +16,8 @@ export default class DataInstance extends Disposable {
   setFrame(frame) {
     throw new Error("This is to be implemented by the inheriting class")
   }
+
+  renderGeometry(projectionMatrix) {
+    throw new Error("This is to be implemented by the inheriting class")
+  }
 }

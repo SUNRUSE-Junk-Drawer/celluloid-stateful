@@ -29,5 +29,7 @@ class MeshInstance extends DataInstance {
 
   setFrame(frame) { }
 
+  renderGeometry(projectionMatrix) { }
+
   performDisposal() { }
 }

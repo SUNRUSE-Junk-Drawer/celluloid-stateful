@@ -21,6 +21,10 @@ export default class MetaScene extends Disposable {
     this.sceneInstances.forEach(sceneInstance => sceneInstance.render())
   }
 
+  renderGeometry(projectionMatrix) {
+    this.sceneInstances.forEach(sceneInstance => sceneInstance.renderGeometry(projectionMatrix))
+  }
+
   performDisposal() {
     while (this.sceneInstances.length) this.sceneInstances[0].dispose()
   }
@@ -61,6 +65,10 @@ class SceneInstance extends Disposable {
   render() {
     this.checkNotDisposed()
     this.viewports.forEach(viewport => viewport.render())
+  }
+
+  renderGeometry(projectionMatrix) {
+    for (const name in this.rootNodeInstances) this.rootNodeInstances[name].renderGeometry(projectionMatrix)
   }
 
   dropCurrentInstance() {
@@ -120,6 +128,16 @@ class NodeInstance {
     this.transform[14] = this.node.translation[2].sample(frame)
 
     mat4.multiply(this.transform, this.parent.transform, this.transform)
+
+    this.hide = this.node.hide.sample(frame)
+    if (this.hide) return
+
     for (const name in this.nodeInstances) this.nodeInstances[name].setFrame(frame)
+  }
+
+  renderGeometry(projectionMatrix) {
+    if (this.hide) return
+
+    if (this.dataInstance) this.dataInstance.renderGeometry(projectionMatrix)
   }
 }
