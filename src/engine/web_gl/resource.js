@@ -15,6 +15,7 @@ export default class Resource extends Disposable {
     } else {
       this.performBind(context.gl, this.created)
     }
+    return this.created
   }
 
   performCreateAndBind(gl) {
