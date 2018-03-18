@@ -23,6 +23,7 @@ def initialize_lamp_data(lamp_data):
   lamp_data.shadow_method = "BUFFER_SHADOW"
   lamp_data.shadow_buffer_type = "REGULAR"
   lamp_data.shadow_buffer_samples = 1
+  lamp_data.distance = 99999
 
 class CelluloidPanel(bpy.types.Panel):
   bl_idname = "OBJECT_PT_celluloid"
