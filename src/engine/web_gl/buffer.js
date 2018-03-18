@@ -4,7 +4,6 @@ export default class Buffer extends Resource {
   constructor(data) {
     super()
     this.data = data
-    this.glNonce = null
   }
 
   target(gl) {
