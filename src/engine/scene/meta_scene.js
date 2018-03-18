@@ -50,7 +50,7 @@ class SceneInstance extends Disposable {
   setFrame(frame) {
     this.checkNotDisposed()
     this.frame = frame
-    for (const name in this.data) this.data[name].setFrame(frame)
+    for (const name in this.dataInstances) this.dataInstances[name].setFrame(frame)
   }
 
   render() {
