@@ -16,7 +16,7 @@ export default class DataInstance extends Disposable {
   }
 
   setFrame(frame) {
-    if (this.frame == this.lastSetFrame) return
+    if (frame == this.lastSetFrame) return
     this.performSetFrame(frame)
     this.lastSetFrame = frame
   }
