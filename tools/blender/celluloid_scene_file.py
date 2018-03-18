@@ -60,6 +60,9 @@ class SetupCelluloidScene(bpy.types.Operator):
       ambient_light = bpy.data.objects.new("ambient_light", ambient_light_data)
       ambient_light.animation_data_create()
       ambient_light.animation_data.action = bpy.data.actions.new(name="")
+      ambient_light.rotation_euler[0] = 1
+      ambient_light.rotation_euler[1] = 1
+      ambient_light.rotation_euler[2] = 1
       bpy.context.scene.objects.link(ambient_light)
 
     return {"FINISHED"}
