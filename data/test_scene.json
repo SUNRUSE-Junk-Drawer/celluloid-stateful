@@ -82,18 +82,25 @@
                         }
                     ]
                 ],
-                "distance": [
-                    {
-                        "startsOnFrame": 0,
-                        "type": "constant",
-                        "withValue": 27.799999237060547
-                    }
-                ],
                 "energy": [
                     {
                         "startsOnFrame": 0,
                         "type": "constant",
                         "withValue": 1.0
+                    }
+                ],
+                "shadowBufferClipEnd": [
+                    {
+                        "startsOnFrame": 0,
+                        "type": "constant",
+                        "withValue": 111.89999389648438
+                    }
+                ],
+                "shadowBufferClipStart": [
+                    {
+                        "startsOnFrame": 0,
+                        "type": "constant",
+                        "withValue": 84.99999237060547
                     }
                 ],
                 "shadowBufferSize": 512,

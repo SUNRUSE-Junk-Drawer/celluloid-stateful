@@ -146,9 +146,10 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       created.animation_data.action = bpy.data.actions.new(name="")
       read_animation(lamp["color"], created, "color", False)
       read_animation(lamp["energy"], created, "energy", False)
-      read_animation(lamp["distance"], created, "distance", False)
       read_animation(lamp["spotSize"], created, "spot_size", False)
       created.shadow_buffer_size = lamp["shadowBufferSize"]
+      read_animation(lamp["shadowBufferClipStart"], created, "shadow_buffer_clip_start", False)
+      read_animation(lamp["shadowBufferClipEnd"], created, "shadow_buffer_clip_end", False)
       allData["lamp"][lamp_name] = created
 
     for camera_name, camera in json_object["data"]["cameras"].items():
@@ -317,13 +318,15 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
           data = {
             "color": write_animation(object, object.data, "color", 3, False),
             "energy": write_animation(object, object.data, "energy", 1, False),
-            "distance": write_animation(object, object.data, "distance", 1, False),
             "spotSize": write_animation(object, object.data, "spot_size", 1, False),
-            "shadowBufferSize": object.data.shadow_buffer_size
+            "shadowBufferSize": object.data.shadow_buffer_size,
+            "shadowBufferClipStart": write_animation(object, object.data, "shadow_buffer_clip_start", 1, False),
+            "shadowBufferClipEnd": write_animation(object, object.data, "shadow_buffer_clip_end", 1, False)
           }
           if not data["energy"]: return {"FINISHED"}
-          if not data["distance"]: return {"FINISHED"}
           if not data["spotSize"]: return {"FINISHED"}
+          if not data["shadowBufferClipStart"]: return {"FINISHED"}
+          if not data["shadowBufferClipEnd"]: return {"FINISHED"}
 
           lamps[object.data.name] = data
       elif object.type == "MESH":
@@ -506,9 +509,10 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
       for channel in lamp["color"]:
         write_number_animation(channel)
       write_number_animation(lamp["energy"])
-      write_number_animation(lamp["distance"])
       write_number_animation(lamp["spotSize"])
       write_uint16(lamp["shadowBufferSize"])
+      write_number_animation(lamp["shadowBufferClipStart"])
+      write_number_animation(lamp["shadowBufferClipEnd"])
 
     write_uint16(len(camera_names_in_order))
     for camera_name in camera_names_in_order:

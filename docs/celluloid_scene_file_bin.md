@@ -80,9 +80,10 @@ For each lamp data object:
 - A UTF-8, zero-terminated string specifying its name.
 - 3 number animations specifying the red, green and blue color.
 - A number animation specifying the energy.
-- A number animation specifying the distance.
 - A number animation specifying the spot size.
 - A uint16 specifying the shadow buffer size.
+- A number animation specifying the shadow buffer clip start.
+- A number animation specifying the shadow buffer clip end.
 
 - A uint16 specifying how many camera data objects there are.
 

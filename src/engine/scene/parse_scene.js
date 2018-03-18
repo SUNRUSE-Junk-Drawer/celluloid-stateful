@@ -64,8 +64,9 @@ export default fileParser => {
       ],
       parseNumberAnimation(fileParser),
       parseNumberAnimation(fileParser),
+      fileParser.uint16(),
       parseNumberAnimation(fileParser),
-      fileParser.uint16()
+      parseNumberAnimation(fileParser)
     ))
   }
 

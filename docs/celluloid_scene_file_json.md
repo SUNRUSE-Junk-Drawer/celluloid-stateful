@@ -200,9 +200,10 @@ Describes a "polygon soup".
 		"any blue number animation"
 	],
 	"energy": "any number animation",
-	"distance": "any number animation",
 	"spotSize": "any angle number animation",
-	"shadowBufferSize": "any number"
+	"shadowBufferSize": "any number",
+	"shadowBufferClipStart": "any number animation",
+	"shadowBufferClipEnd": "any number animation"
 }
 ```
 
