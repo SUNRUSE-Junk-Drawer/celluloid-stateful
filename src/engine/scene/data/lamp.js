@@ -25,7 +25,7 @@ class LampInstance extends DataInstance {
   constructor(sceneInstance, data) {
     super(sceneInstance, data)
     this.color = vec3.create()
-    this.setFrame(0)
+    this.setFrame(sceneInstance.frame)
   }
 
   setFrame(frame) {

@@ -26,7 +26,7 @@ class MaterialInstance extends DataInstance {
   constructor(sceneInstance, data) {
     super(sceneInstance, data)
     this.diffuseColor = vec3.create()
-    this.setFrame(0)
+    this.setFrame(sceneInstance.frame)
   }
 
   setFrame(frame) {

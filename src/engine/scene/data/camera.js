@@ -20,7 +20,7 @@ export default class Camera extends Data {
 class CameraInstance extends DataInstance {
   constructor(sceneInstance, data) {
     super(sceneInstance, data)
-    this.setFrame(0)
+    this.setFrame(sceneInstance.frame)
   }
 
   setFrame(frame) {
