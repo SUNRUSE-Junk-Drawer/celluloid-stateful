@@ -32,6 +32,7 @@ addEventListener("load", () => {
 
   canvas.addEventListener("webglcontextrestored", () => {
     exported.glNonce++
+    initializeGl()
     animationFrame = requestAnimationFrame(onAnimationFrame)
   })
 
@@ -46,6 +47,8 @@ addEventListener("load", () => {
   const gl = canvas.getContext("webgl", attributes) || canvas.getContext("experimental-webgl", attributes)
   if (!gl) throw new Error("Failed to open a WebGL context")
   exported.gl = gl
+
+  initializeGl()
 
   animationFrame = requestAnimationFrame(onAnimationFrame)
   let lastTimestamp = null
@@ -66,6 +69,11 @@ addEventListener("load", () => {
     mainLoop(deltaSeconds)
 
     animationFrame = requestAnimationFrame(onAnimationFrame)
+  }
+
+  function initializeGl() {
+    gl.enable(gl.CULL_FACE)
+    gl.enable(gl.DEPTH_TEST)
   }
 
   canvas.style.visibility = "visible"
