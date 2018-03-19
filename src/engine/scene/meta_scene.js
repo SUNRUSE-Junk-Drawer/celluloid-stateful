@@ -138,6 +138,6 @@ class NodeInstance {
   renderGeometry(projectionMatrix) {
     if (this.hide) return
 
-    if (this.dataInstance) this.dataInstance.renderGeometry(projectionMatrix)
+    if (this.dataInstance) this.dataInstance.renderGeometry(projectionMatrix, this.transform)
   }
 }

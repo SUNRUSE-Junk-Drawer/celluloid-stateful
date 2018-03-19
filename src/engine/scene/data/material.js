@@ -37,7 +37,7 @@ class MaterialInstance extends DataInstance {
     this.emit = this.data.emit.sample(frame)
   }
 
-  renderGeometry(projectionMatrix) { }
+  renderGeometry(projectionMatrix, transform) { }
 
   performDisposal() { }
 }
