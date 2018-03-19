@@ -119,9 +119,9 @@ class NodeInstance {
     scale[2] = this.node.scale[2].sample(frame)
     mat4.fromScaling(this.transform, scale)
 
-    mat4.rotateX(this.transform, this.transform, this.node.rotation[0].sample(frame))
-    mat4.rotateY(this.transform, this.transform, this.node.rotation[1].sample(frame))
     mat4.rotateZ(this.transform, this.transform, this.node.rotation[2].sample(frame))
+    mat4.rotateY(this.transform, this.transform, this.node.rotation[1].sample(frame))
+    mat4.rotateX(this.transform, this.transform, this.node.rotation[0].sample(frame))
 
     this.transform[12] = this.node.translation[0].sample(frame)
     this.transform[13] = this.node.translation[1].sample(frame)
