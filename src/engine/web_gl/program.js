@@ -29,6 +29,20 @@ export default class Program extends Resource {
       throw new Error(`Error linking a WebGL program: "${message}"`)
     }
     gl.useProgram(program)
+
+    this.attributes = {}
+    const numberOfAttributes = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES)
+    for (let i = 0; i < numberOfAttributes; i++) {
+      const attribute = gl.getActiveAttrib(program, i)
+      this.attributes[attribute.name] = i
+    }
+
+    this.uniforms = {}
+    const numberOfUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
+    for (let i = 0; i < numberOfUniforms; i++) {
+      const uniform = gl.getActiveUniform(program, i)
+      this.uniforms[uniform.name] = gl.getUniformLocation(program, uniform.name)
+    }
     return program
   }
 
