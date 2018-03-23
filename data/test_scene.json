@@ -48,11 +48,11 @@
                         "withValue": 0.10000000149011612
                     }
                 ],
-                "lens": [
+                "angle": [
                     {
                         "startsOnFrame": 0,
                         "type": "constant",
-                        "withValue": 35.0
+                        "withValue": 0.767945
                     }
                 ]
             }

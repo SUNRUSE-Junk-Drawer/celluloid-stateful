@@ -213,7 +213,7 @@ Describes a "polygon soup".
 {
 	"clipStart": "any number animation",
 	"clipEnd": "any number animation",
-	"lens": "any number animation"
+	"angle": "any number animation"
 }
 ```
 

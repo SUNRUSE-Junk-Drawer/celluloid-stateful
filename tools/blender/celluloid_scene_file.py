@@ -169,7 +169,7 @@ class ImportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ImportHel
       created.animation_data.action = bpy.data.actions.new(name="")
       read_animation(camera["clipStart"], created, "clip_start", False)
       read_animation(camera["clipEnd"], created, "clip_end", False)
-      read_animation(camera["lens"], created, "lens", False)
+      read_animation(camera["angle"], created, "angle", False)
       allData["camera"][camera_name] = created
 
     def recurse(parent_name, parent):
@@ -375,11 +375,11 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
           data = {
             "clipStart": write_animation(object, object.data, "clip_start", 1, False),
             "clipEnd": write_animation(object, object.data, "clip_end", 1, False),
-            "lens": write_animation(object, object.data, "lens", 1, False)
+            "angle": write_animation(object, object.data, "angle", 1, False)
           }
           if not data["clipStart"]: return {"FINISHED"}
           if not data["clipEnd"]: return {"FINISHED"}
-          if not data["lens"]: return {"FINISHED"}
+          if not data["angle"]: return {"FINISHED"}
           cameras[object.data.name] = data
       else:
         self.report({"ERROR"}, "Object \"" + object.name + "\" is a(n) \"" + object.type + "\", which is not a supported type.")
@@ -531,7 +531,7 @@ class ExportCelluloidSceneFile(bpy.types.Operator, bpy_extras.io_utils.ExportHel
       camera = cameras[camera_name]
       write_number_animation(camera["clipStart"])
       write_number_animation(camera["clipEnd"])
-      write_number_animation(camera["lens"])
+      write_number_animation(camera["angle"])
 
     write_uint16(len(scene_node_names_in_order))
     for scene_node_name in scene_node_names_in_order:
