@@ -91,7 +91,7 @@ For each camera data object:
 - A UTF-8, zero-terminated string specifying its name.
 - A number animation specifying the clip start.
 - A number animation specifying the clip end.
-- A number animation specifying the lens.
+- A number animation specifying the angle (field of view).
 
 - A uint16 specifying how many scene nodes there are.
 
