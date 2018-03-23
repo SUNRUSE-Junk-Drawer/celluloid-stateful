@@ -1,12 +1,13 @@
 import Disposable from "./../../disposable"
 
 export default class Data extends Disposable {
-  constructor(scene, name) {
+  constructor(scene, type, name) {
     super()
     scene.checkNotDisposed()
     this.scene = scene
+    this.type = type
     this.name = name
-    scene.data[name] = this
+    scene.data[type][name] = this
   }
 
   createInstance() {

@@ -3,7 +3,7 @@ import DataInstance from "./data_instance"
 
 export default class Camera extends Data {
   constructor(scene, name, clipStart, clipEnd, angle) {
-    super(scene, name)
+    super(scene, "camera", name)
     this.clipStart = clipStart
     this.clipEnd = clipEnd
     this.angle = angle

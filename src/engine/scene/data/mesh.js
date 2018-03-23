@@ -3,7 +3,7 @@ import DataInstance from "./data_instance"
 
 export default class Mesh extends Data {
   constructor(scene, name, locations) {
-    super(scene, name)
+    super(scene, "mesh", name)
     this.locations = locations
     this.meshMaterials = []
   }

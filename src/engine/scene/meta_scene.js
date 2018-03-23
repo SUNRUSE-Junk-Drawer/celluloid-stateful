@@ -44,7 +44,18 @@ class SceneInstance extends Disposable {
       }
 
       this.dataInstances = {}
-      for (const name in scene.data) scene.data[name].createInstance(this)
+
+      const createDataInstances = type => {
+        this.dataInstances[type] = {}
+        for (const name in scene.data[type]) {
+          scene.data[type][name].createInstance(this)
+        }
+      }
+
+      createDataInstances("material")
+      createDataInstances("mesh")
+      createDataInstances("lamp")
+      createDataInstances("camera")
 
       this.nodeInstances = {}
       this.rootNodeInstances = {}
@@ -57,7 +68,11 @@ class SceneInstance extends Disposable {
     this.checkNotDisposed()
     this.frame = frame
     if (this.dataInstances) {
-      for (const name in this.dataInstances) this.dataInstances[name].setFrame(frame)
+      for (const type in this.dataInstances) {
+        for (const name in this.dataInstances[type]) {
+          this.dataInstances[type][name].setFrame(frame)
+        }
+      }
       for (const name in this.rootNodeInstances) this.rootNodeInstances[name].setFrame(frame)
     }
   }
@@ -73,7 +88,11 @@ class SceneInstance extends Disposable {
 
   dropCurrentInstance() {
     if (this.dataInstances) {
-      for (const name in this.dataInstances) this.dataInstances[name].dispose()
+      for (const type in this.dataInstances) {
+        for (const name in this.dataInstances[type]) {
+          this.dataInstances[type][name].dispose()
+        }
+      }
       this.dataInstances = null
     }
 
@@ -96,7 +115,7 @@ class NodeInstance {
     this.node = node
 
     if (node.data) {
-      this.dataInstance = sceneInstance.dataInstances[node.data.name]
+      this.dataInstance = sceneInstance.dataInstances[node.data.type][node.data.name]
     } else {
       this.dataInstance = null
     }

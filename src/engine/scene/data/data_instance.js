@@ -10,7 +10,7 @@ export default class DataInstance extends Disposable {
     this.sceneInstance.checkNotDisposed()
     this.data.checkNotDisposed()
 
-    this.sceneInstance.dataInstances[this.data.name] = this
+    this.sceneInstance.dataInstances[this.data.type][this.data.name] = this
   }
 
   setFrame(frame) {

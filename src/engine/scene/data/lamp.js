@@ -4,7 +4,7 @@ import { vec3 } from "gl-matrix"
 
 export default class Lamp extends Data {
   constructor(scene, name, color, energy, spotSize, shadowBufferSize, shadowBufferClipStart, shadowBufferClipEnd) {
-    super(scene, name)
+    super(scene, "lamp", name)
     this.color = color
     this.energy = energy
     this.spotSize = spotSize

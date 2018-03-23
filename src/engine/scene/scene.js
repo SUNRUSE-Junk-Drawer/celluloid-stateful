@@ -5,7 +5,12 @@ export default class Scene extends Disposable {
     super()
     this.ambientLightColor = ambientLightColor
     this.ambientLightEnergy = ambientLightEnergy
-    this.data = {}
+    this.data = {
+      material: {},
+      mesh: {},
+      lamp: {},
+      camera: {}
+    }
     this.nodes = {}
   }
 

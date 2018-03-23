@@ -4,7 +4,7 @@ import { vec3 } from "gl-matrix"
 
 export default class Material extends Data {
   constructor(scene, name, diffuseColor, diffuseIntensity, emit, useShadeless, useShadows, useCastShadows, useCastShadowsOnly) {
-    super(scene, name)
+    super(scene, "material", name)
     this.diffuseColor = diffuseColor
     this.diffuseIntensity = diffuseIntensity
     this.emit = emit
