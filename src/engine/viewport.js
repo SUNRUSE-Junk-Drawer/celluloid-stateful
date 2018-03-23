@@ -1,8 +1,12 @@
 import context from "./context"
 import Disposable from "./disposable"
+import { mat4 } from "gl-matrix"
+
+const projectionMatrix = mat4.create()
+const inverseViewMatrix = mat4.create()
 
 export default class Viewport extends Disposable {
-  constructor(sceneInstance, cameraNodeName, left, bottom, right, top) {
+  constructor(sceneInstance, cameraNodeName, left, bottom, right, top, targetWidth, targetHeight) {
     super()
 
     sceneInstance.checkNotDisposed()
@@ -13,6 +17,8 @@ export default class Viewport extends Disposable {
     this.bottom = bottom
     this.right = right
     this.top = top
+    this.targetWidth = targetWidth
+    this.targetHeight = targetHeight
 
     this.sceneInstance.viewports.push(this)
   }
@@ -37,5 +43,35 @@ export default class Viewport extends Disposable {
     gl.enable(gl.SCISSOR_TEST)
     gl.clear(gl.DEPTH_BUFFER_BIT)
     gl.disable(gl.SCISSOR_TEST)
+
+    const targetAspect = this.targetWidth / this.targetHeight
+    const actualAspect = width / height
+
+    const scale = Math.tan(camera.dataInstance.angle / 2) * camera.dataInstance.clipStart / targetAspect
+    let xScale
+    let yScale
+
+    if (actualAspect > targetAspect) {
+      xScale = scale * actualAspect
+      yScale = scale
+    } else {
+      xScale = scale * targetAspect
+      yScale = scale * targetAspect / actualAspect
+    }
+
+    mat4.frustum(
+      projectionMatrix,
+      -xScale,
+      xScale,
+      -yScale,
+      yScale,
+      camera.dataInstance.clipStart,
+      camera.dataInstance.clipEnd
+    )
+
+    mat4.invert(inverseViewMatrix, camera.transform)
+    mat4.multiply(projectionMatrix, projectionMatrix, inverseViewMatrix)
+
+    this.sceneInstance.metaScene.renderGeometry(projectionMatrix)
   }
 }
