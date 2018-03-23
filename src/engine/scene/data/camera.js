@@ -2,11 +2,11 @@ import Data from "./data"
 import DataInstance from "./data_instance"
 
 export default class Camera extends Data {
-  constructor(scene, name, clipStart, clipEnd, lens) {
+  constructor(scene, name, clipStart, clipEnd, angle) {
     super(scene, name)
     this.clipStart = clipStart
     this.clipEnd = clipEnd
-    this.lens = lens
+    this.angle = angle
   }
 
   createInstance(sceneInstance) {
@@ -26,7 +26,7 @@ class CameraInstance extends DataInstance {
   setFrame(frame) {
     this.clipStart = this.data.clipStart.sample(frame)
     this.clipEnd = this.data.clipEnd.sample(frame)
-    this.lens = this.data.lens.sample(frame)
+    this.angle = this.data.angle.sample(frame)
   }
 
   renderGeometry(projectionMatrix, transform) { }
